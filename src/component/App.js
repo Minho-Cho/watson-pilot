@@ -15,6 +15,7 @@ import Watson from './Watson';
 import Client from './Client';
 import ConferenceRoom from './ConferenceRoom';
 
+/*
 import ConversationV1 from 'watson-developer-cloud/conversation/v1';
 
 const message = function(text, context, token) {
@@ -46,7 +47,6 @@ function getToken() {
     });
 }
 
-/*
 function msg(token) {
     message('first message', undefined, token).then(response1 => {
         // APPLICATION-SPECIFIC CODE TO PROCESS THE DATA
