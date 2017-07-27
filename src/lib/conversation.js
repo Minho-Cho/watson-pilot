@@ -29,22 +29,7 @@ const message = function(text, context) {
 }
 
 module.exports = (app) => {
-    // For local development, specify the username and password or set env properties
     dotenv.load({silent: true});
-
-    /*
-    const ltAuthService = new watson.AuthorizationV1({username: process.env.CONVERSATION_USERNAME, password: process.env.CONVERSATION_PASSWORD, url: watson.ConversationV1.URL});
-
-    app.get('/api/token/conversation', (request, response) => {
-        ltAuthService.getToken((err, token) => {
-            if (err) {
-                console.log('Error retrieving token: ', err);
-                return response.status(500).send('Error retrieving token');
-            }
-            response.send(token);
-        });
-    });
-    */
 
     var jsonParser = bodyParser.json();
     var urlencodedParser = bodyParser.urlencoded({ extended: true });
@@ -56,8 +41,7 @@ module.exports = (app) => {
         //and you have just solved the CORS issue
 
         message(request.body.message, request.body.context).then((res)=>{
-            // APPLICATION-SPECIFIC CODE TO PROCESS THE DATA
-            // FROM CONVERSATION SERVICE
+            
             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
 
             response.send(res)
