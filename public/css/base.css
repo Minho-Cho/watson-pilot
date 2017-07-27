@@ -54,3 +54,38 @@
     position: relative;
     top: 1px;
 }
+
+.sect_sch .sect_schLst {margin-top:10px; border:1px solid #d2d4d9; border-bottom:0;}
+.tbl_sch{table-layout:fixed;color:#676767;text-align:center;}/*border-collapse:collapse;border-spacing:0; : common.css에서 이미 포괄 정의*/
+.tbl_sch th, .tbl_sch td{border-left:1px solid #d2d4d9; border-bottom:1px solid #d2d4d9;background-color:#fff;}
+.tbl_sch thead th{border-bottom:2px solid #757984;color:#3c404a;background-color:#edeef3;}
+.tbl_sch thead th:first-child{border-left:none;}
+.tbl_sch thead th .status{font-weight:normal;color:#676767}
+.tbl_sch tbody th:first-child{border-left:none;}
+.tbl_sch tbody th .status{font-weight:normal;color:#a4a7a9}
+
+.sect_ctg_cell{width:150px;}
+.sect_sch.ctgNmb04 .sect_ctg_cell{width:400px;}
+.tbl_sch.ctg th, .tbl_sch.ctg td, .tbl_sch.tml th, .tbl_sch.tml td{height:40px;}
+.tbl_sch .sect_ctg{overflow:hidden;width:100%;height:100%;}
+.tbl_sch.ctg{width:100%;}
+.tbl_sch.ctg .hd_ctg_scroll{padding:0;height:18px;font-size:0;line-height:1;border-bottom:none;background-color:#edeef3;}
+.sect_tml_cell{width:auto;/*width:calc(100% - 150px);*/}
+.tbl_sch .sect_tml{overflow:hidden;overflow-x:scroll;width:777px;height:100%;}/*% width값은 상대적이라 반응하지 않음.*/
+.sect_sch.ctgNmb04 .tbl_sch .sect_tml{width:527px;}
+.tbl_sch .sect_tml.exp{width:1028px;}
+.sect_sch.ctgNmb04 .tbl_sch .sect_tml.exp{width:778px;}
+.tbl_sch.tml{font-size:12px;font-family:'Malgun Gothic', arial, dotum, gulim;line-height:1.3em;border-spacing:2px;border-color:grey;border-spacing:0;border-collapse:collapse;table-layout:fixed}
+.tbl_sch.tml thead th{padding:0 6px;}
+.tbl_sch.tml tbody td{}/*width:30px;*/
+.tbl_sch.tml tbody td:first-child{border-left:none;}
+
+.tbl_sch .tp_allbg td.stt_off{background-color:#f3f2f6;}
+.tbl_sch .tp_allbg td.stt_opt{background-color:#00a0ae;cursor:pointer;}
+.tbl_sch .tp_allbg td.stt_prp{background-color:#fdab06;cursor:pointer;}
+.tbl_sch .tp_allbg td.stt_rjc{background-color:#737984;cursor:pointer;}
+
+.tbl_sch .tp_bar td .stt_bar{display:block;width:100%;height:20px;background:none;}
+.tbl_sch .tp_bar td.stt_off{background-color:#f3f2f6;}
+.tbl_sch .tp_bar td.stt_opt .stt_bar{background-color:#00a0ae;cursor:pointer;}
+.tbl_sch .tp_bar td.stt_prp .stt_bar{background-color:#fdab06;cursor:pointer;}

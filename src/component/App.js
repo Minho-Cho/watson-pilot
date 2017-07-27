@@ -4,6 +4,7 @@ import React from 'react';
 import Watson from './Watson';
 import Client from './Client';
 import ConferenceRoom from './ConferenceRoom';
+import ConferenceRoomRsvr from './ConferenceRoomRsvr';
 
 export default class App extends React.Component {
     constructor(props) {
@@ -18,7 +19,6 @@ export default class App extends React.Component {
         this.sendMessage = this.sendMessage.bind(this);
         this.updateReply = this.updateReply.bind(this);
         this.sendMessageCli = this.sendMessageCli.bind(this);
-        this.updateRoominfo = this.updateRoominfo.bind(this);
 
         this.sendMessage();
     }
@@ -29,26 +29,17 @@ export default class App extends React.Component {
         this.setState({
             reply : json.output.text,
             message : '',
-            context : json.context
+            entities : json.entities,
+            context : json.context,
+            roomInfo : '',
+            rsvrInfo : ''
         })
 
         if(json.output.nodes_visited == 'node_1_1500624737419'){
             this.getConferenceRoomInfo();
-        }else{
-            this.setState({
-                roomInfo : ''
-            })
+        }else if(json.output.nodes_visited == 'node_1_1501114989965'){
+            this.getConferenceRoomRsvrInfo();
         }
-    }
-
-    updateRoominfo(roomInfo){
-        console.log('updateRoominfo called');
-        var ri = JSON.parse(roomInfo);
-        var room = '';
-        ri.forEach((v, i)=>{room = room + ',' + v.MR_NM;});
-        this.setState({
-            roomInfo : room
-        })
     }
 
     sendMessage(){
@@ -74,7 +65,26 @@ export default class App extends React.Component {
         console.log('getConferenceRoomInfo called');
         return fetch('/api/webservice/getConferenceRoomInfo').then((response) => {
             return response.text();
-        }).then(this.updateRoominfo)
+        }).then((res)=>{
+            this.setState({
+                roomInfo : res
+            });
+        })
+    }
+
+    getConferenceRoomRsvrInfo(){
+        console.log('getConferenceRoomRsvrInfo called');
+        return fetch('/api/webservice/getConferenceRoomRsvrInfo', {
+            headers: new Headers({'Content-Type': 'application/json'}),
+            method : 'POST',
+            body : JSON.stringify({message:this.state.message, context:this.state.context, entities:this.state.entities})
+        }).then((response) => {
+            return response.text();
+        }).then((res)=>{
+            this.setState({
+                rsvrInfo : res
+            });
+        })
     }
 
     render(){
@@ -82,6 +92,7 @@ export default class App extends React.Component {
             <div>
                 <Watson content = {this.state.reply}/>
                 <ConferenceRoom content = {this.state.roomInfo}/>
+                <ConferenceRoomRsvr content = {this.state.rsvrInfo}/>
                 <Client onInsert={this.sendMessageCli} />
             </div>
         );
