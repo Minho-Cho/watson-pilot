@@ -61,4 +61,40 @@ module.exports = function(app){
             }
         });
     });
+
+    app.post('/api/webservice/addConferenceRoomRsvr', jsonParser, (request, response) => {
+        var rsvrInfo = request.body.rsvrData;
+        var Service = require('../egss_resv_cr');
+        var egssRequest = new Service.COEaiMngShared.addConferenceRoomRsvr();
+
+        var json = {MR_REG_NO: rsvrInfo.roomCode,
+                    RSVR_DE: rsvrInfo.rsvrDay,
+                    RSVR_FROM_HH: rsvrInfo.TFH,
+                    RSVR_FROM_MI: rsvrInfo.TFM,
+                    RSVR_TO_HH: rsvrInfo.TTH,
+                    RSVR_TO_MI: rsvrInfo.TFM,
+                    MEET_TITLE: rsvrInfo.roomTitle,
+                    PROC_STS_CD: '',
+                    BTN_STS_CD: '',
+                    EMP_ID: 'X0006832',
+                    TB_PWD: '1234'
+        }
+        egssRequest.addConferenceRoomRsvrParameter = new Service.Types.addConferenceRoomRsvrParameter(json);
+
+        egssRequest.request((err, res) => {
+            if (!(err === null || err == 'null')){
+                console.log('ERR : ',err);
+                //에러처리 추가
+            }else{
+                var result = res.extract().addConferenceRoomRsvrReturn;
+                if (result.E_RETVAL != 'S'){
+                    console.log('ERR : ',result.E_RETMSG);
+                }else{
+                    var rsvrInfo = result.RSVR_INFO;
+                    console.log(rsvrInfo);
+                    response.send(rsvrInfo);
+                }
+            }
+        });
+    });
 }

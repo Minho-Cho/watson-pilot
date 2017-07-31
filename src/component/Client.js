@@ -19,6 +19,7 @@ export default class Client extends React.Component {
     }
 
     handleClick(){
+        document.getElementsByName('question')[0].value = '';
         this.props.onInsert(this.state.question);
     }
 
@@ -31,7 +32,7 @@ export default class Client extends React.Component {
     render(){
         return(
             <div>
-                <input className='text' type='text' width='500' name='question' placeholder='질문을 입력하세요' onChange={this.handleChange} onKeyDown={this.handlePress}></input>
+                <input className='text' type='text' width='500' name='question' placeholder='요청사항을 입력하세요' onChange={this.handleChange} onKeyDown={this.handlePress}></input>
                 <a href='#' className='myButton' onClick={this.handleClick}>전송</a>
             </div>
         );
