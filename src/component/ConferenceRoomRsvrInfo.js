@@ -74,9 +74,9 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
                 for(let j = 0 ; j < 28 ; j++){
                     let bgColor = {backgroundColor:'#FFFFFF'};
                     if(v['RSVR_T'+j] == 'A'){
-                        bgColor = {backgroundColor:'#b3e8ff'};
+                        bgColor = {backgroundColor:'#ffb1aa'};
                     }else if(v['RSVR_T'+j] == 'B'){
-                        bgColor = {backgroundColor:'#ffbaf2'};
+                        bgColor = {backgroundColor:'#acc6ff'};
                     }
                     items.push(<td style={bgColor} key={'tdj'+j}></td>);
                 }
@@ -91,7 +91,7 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
                 <div className="sect_schLst tbl_sch sect_tml_cell">
     				<table className="tbl_sch tml" >
     					<colgroup>
-                            <col width="100" />
+                            <col width="200" />
     						<col width="35" />
     						<col width="35" />
     						<col width="35" />

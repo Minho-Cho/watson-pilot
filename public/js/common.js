@@ -106,6 +106,7 @@ var Common = (function() {
 
     function ableRoomInfo(room, data, startTime, endTime){
         var roomInfo = JSON.parse(room);
+        Common.sortJsonArrayByProperty(roomInfo, 'MR_NM');
         JSON.parse(data).map((v,i)=>{
             let tmp = Common.makeTimeTable(v.RSVR_FR_HH, v.RSVR_FR_MI, v.RSVR_TO_HH, v.RSVR_TO_MI);
             if(tmp.indexOf(startTime) > -1){
@@ -163,7 +164,7 @@ var Common = (function() {
                 }
             }
         });
-
+        
         //기본 회의시간은 1시간
         rsvrTTH = Number(rsvrTFH) + 1;
         rsvrTTM = rsvrTFM;

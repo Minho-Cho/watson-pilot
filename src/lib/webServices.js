@@ -77,7 +77,7 @@ module.exports = function(app){
                     PROC_STS_CD: '',
                     BTN_STS_CD: '',
                     EMP_ID: 'X0006832',
-                    TB_PWD: '1234'
+                    TB_PWD: 'CRRS'
         }
         egssRequest.addConferenceRoomRsvrParameter = new Service.Types.addConferenceRoomRsvrParameter(json);
 

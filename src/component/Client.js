@@ -32,8 +32,8 @@ export default class Client extends React.Component {
     render(){
         return(
             <div>
-                <input className='text' type='text' width='500' name='question' placeholder='요청사항을 입력하세요' onChange={this.handleChange} onKeyDown={this.handlePress}></input>
-                <a href='#' className='myButton' onClick={this.handleClick}>전송</a>
+                <input type='text' width='500' name='question' placeholder='요청사항을 입력하세요' onChange={this.handleChange} onKeyDown={this.handlePress}></input>
+                <a href='#' onClick={this.handleClick}/>
             </div>
         );
     }
