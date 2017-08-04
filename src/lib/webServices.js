@@ -51,13 +51,13 @@ module.exports = function(app){
                 console.log('ERR : ',err);
             }else{
                 var result = res.extract().getConferenceRoomRsvrInfoReturn;
+                var rsvrInfo = result.RSVR_INFO;
                 if (result.E_RETVAL != 'S'){
                     console.log('ERR : ',result.E_RETMSG);
                 }else{
-                    var rsvrInfo = result.RSVR_INFO;
                     console.log(rsvrInfo);
-                    response.send(rsvrInfo);
                 }
+                response.send(rsvrInfo);
             }
         });
     });

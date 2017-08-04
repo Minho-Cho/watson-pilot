@@ -11,7 +11,7 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
             if (data.content == '' || data.content==null || data.content==undefined) return false;
             let rsvrInfo = JSON.parse(data.content);
             var meetingRoomSet = [];
-
+console.log('L:::::::::::::::::::::::::::',data.roomInfo,'_____',typeof data.roomInfo)
 			var roomInfo = JSON.parse(data.roomInfo);
             roomInfo.map((v, i) => {
                 if (meetingRoomSet.find((item, idx)=>{return item.MR_REG_NO === v.MR_REG_NO}) == undefined){

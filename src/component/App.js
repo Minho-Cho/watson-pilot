@@ -1,15 +1,19 @@
 'use strict'
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import Watson from './Watson';
 import Client from './Client';
 import ConferenceRoom from './ConferenceRoom';
 import ConferenceRoomRsvrInfo from './ConferenceRoomRsvrInfo';
 import ConferenceRoomRsvr from './ConferenceRoomRsvr';
 
+import styles from '../style/App.css';
+
 const dotenv = require('dotenv');
 
 export default class App extends React.Component {
+
     constructor(props) {
         dotenv.load({silent: true});
         super(props);
@@ -27,6 +31,10 @@ export default class App extends React.Component {
 
         this.sendMessage();
     }
+
+    // shouldComponentUpdate(nextProps, nextState){
+    // 	return (JSON.stringify(nextProps) != JSON.stringify(this.props));
+    // }
 
     //Watson으로부터 받은 정보 업데이트
     updateReply(result){
@@ -182,19 +190,19 @@ export default class App extends React.Component {
     render(){
         return (
             <div>
-                <div className="header">
-                    <div className="wrap">
-                        <div className="logo">
+                <div className={styles.header}>
+                    <div className={styles.wrap}>
+                        <div className={styles.logo}>
                             <a href="index.html"><span>Watson</span><br/><span>Pilot</span></a>
                         </div>
-                        <div className="nav-icon">
-                            <a href="#" className="right_bt" id="activator"><span> </span> </a>
+                        <div className={styles.navIcon}>
+                            <a href="#" id="activator"><span> </span> </a>
                         </div>
-                        <div className="box" id="box">
-                            <div className="box_content">
-                                <div className="box_content_center">
-                                    <div className="form_content">
-                                        <div className="menu_box_list">
+                        <div className={styles.box} id="box">
+                            <div>
+                                <div className={styles.box_content_center}>
+                                    <div>
+                                        <div className={styles.menu_box_list}>
                                             <ul>
                                                 <li><a href="#"><span>home</span></a></li>
                                                 <li><a href="#"><span>About</span></a></li>
@@ -202,30 +210,30 @@ export default class App extends React.Component {
                                                 <li><a href="#"><span>Clients</span></a></li>
                                                 <li><a href="#"><span>Blog</span></a></li>
                                                 <li><a href="contact.html"><span>Contact</span></a></li>
-                                                <div className="clear"> </div>
+                                                <div className={styles.clear}> </div>
                                             </ul>
                                         </div>
-                                        <a className="boxclose" id="boxclose"> <span> </span></a>
+                                        <a className={styles.boxclose} id="boxclose"> <span> </span></a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="top-searchbar">
+                        <div className={styles.top_searchbar}>
                             <Client onInsert={this.sendMessageCli} />
                         </div>
-                        <div className="userinfo">
-                            <div className="user">
+                        <div className={styles.userinfo}>
+                            <div className={styles.user}>
                                 <ul>
                                     <li><a href="#"><img src="images/user-pic.png" title="user-name"/><span>X0006832</span></a></li>
                                 </ul>
                             </div>
                         </div>
-                        <div className="clear"></div>
+                        <div className={styles.clear}></div>
                     </div>
                 </div>
 
-                <div className="content">
-            		<div className="wrap">
+                <div className={styles.content}>
+            		<div className={styles.wrap}>
                         <div id="main" role="main" >
                             <ul id="tiles">
                                 <li style={{position:'relative',top:'90px',left:'0px',width:'calc(100%-40px)'}}>
