@@ -2,6 +2,11 @@ module.exports = {
   "COEaiMngShared": {
     "namespace": "componentNs:coeaimngshared.co.egss/co.COEaiMngShared",
     "serviceUrl": "http://egss.skhynix.com:80/web/services/WsFrontController",
+    "getConferenceRoomMyRsvrInfo": {
+      "soapAction": "",
+      "input": "ElementgetConferenceRoomMyRsvrInfo",
+      "output": "ElementgetConferenceRoomMyRsvrInfoResponse"
+    },
     "getValidConferenceRoomUser": {
       "soapAction": "",
       "input": "ElementgetValidConferenceRoomUser",
@@ -32,7 +37,6 @@ module.exports = {
       "input": "ElementgetConferenceRoomFloorInfo",
       "output": "ElementgetConferenceRoomFloorInfoResponse"
     },
-
     "getConferenceRoomCode": {
       "soapAction": "",
       "input": "ElementgetConferenceRoomCode",
@@ -48,15 +52,10 @@ module.exports = {
       "input": "ElementgetConferenceRoomServerTime",
       "output": "ElementgetConferenceRoomServerTimeResponse"
     },
-    "fCOcommonApprvSttusInfo": {
+    "getConferenceRoomInfoDetail": {
       "soapAction": "",
-      "input": "ElementfCOcommonApprvSttusInfo",
-      "output": "ElementfCOcommonApprvSttusInfoResponse"
-    },
-    "fCOcommonApprvDocInfo": {
-      "soapAction": "",
-      "input": "ElementfCOcommonApprvDocInfo",
-      "output": "ElementfCOcommonApprvDocInfoResponse"
+      "input": "ElementgetConferenceRoomInfoDetail",
+      "output": "ElementgetConferenceRoomInfoDetailResponse"
     }
   }
-};
+}
