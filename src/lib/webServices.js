@@ -11,15 +11,15 @@ module.exports = function(app){
 
     app.get('/api/webservice/getConferenceRoomInfo', (request, response) => {
         var Service = require('../egss_resv_cr');
-        var egssRequest = new Service.COEaiMngShared.getConferenceRoomInfo();
+        var egssRequest = new Service.COEaiMngShared.getConferenceRoomInfoDetail();
 
-        egssRequest.getConferenceRoomInfoParameter = new Service.Types.getConferenceRoomInfoParameter(json);
+        egssRequest.getConferenceRoomInfoDetailParameter = new Service.Types.getConferenceRoomInfoDetailParameter(json);
 
         egssRequest.request((err, res) => {
             if (!(err === null || err == 'null')){
                 console.log('ERR : ',err);
             }else{
-                var result = res.extract().getConferenceRoomInfoReturn;
+                var result = res.extract().getConferenceRoomInfoDetailReturn;
                 if (result.E_RETVAL != 'S'){
                     console.log('ERR : ',result.E_RETMSG);
                 }else{
