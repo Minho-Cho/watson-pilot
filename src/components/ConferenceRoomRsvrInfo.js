@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 const timeTable = ['0700', '0730', '0800', '0830', '0900', '0930', '1000', '1030', '1100',
 	               '1130', '1200', '1230', '1300', '1330', '1400', '1430', '1500', '1530',
@@ -11,7 +11,7 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
             if (data.content == '' || data.content==null || data.content==undefined) return false;
             let rsvrInfo = JSON.parse(data.content);
             var meetingRoomSet = [];
-console.log('L:::::::::::::::::::::::::::',data.roomInfo,'_____',typeof data.roomInfo)
+// console.log('L:::::::::::::::::::::::::::',data.roomInfo,'_____',typeof data.roomInfo)
 			var roomInfo = JSON.parse(data.roomInfo);
             roomInfo.map((v, i) => {
                 if (meetingRoomSet.find((item, idx)=>{return item.MR_REG_NO === v.MR_REG_NO}) == undefined){
@@ -84,68 +84,66 @@ console.log('L:::::::::::::::::::::::::::',data.roomInfo,'_____',typeof data.roo
             });
         };
 
-        if (this.props.content == '' || this.props.content==null || this.props.content==undefined || !this.props.showflag){
-            return false;
-        }else{
-            return (
-                <div className="sect_schLst tbl_sch sect_tml_cell">
-    				<table className="tbl_sch tml" >
-    					<colgroup>
-                            <col width="200" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    						<col width="35" />
-    					</colgroup>
-    					<thead>
-    						<tr>
-                                <th scope="col" className="sect_ctg_cell">회의실명</th>
-    							<th scope="col" colSpan="2">07:00</th>
-    							<th scope="col" colSpan="2">08:00</th>
-    							<th scope="col" colSpan="2">09:00</th>
-    							<th scope="col" colSpan="2">10:00</th>
-    							<th scope="col" colSpan="2">11:00</th>
-    							<th scope="col" colSpan="2">12:00</th>
-    							<th scope="col" colSpan="2">13:00</th>
-    							<th scope="col" colSpan="2">14:00</th>
-    							<th scope="col" colSpan="2">15:00</th>
-    							<th scope="col" colSpan="2">16:00</th>
-    							<th scope="col" colSpan="2">17:00</th>
-    							<th scope="col" colSpan="2">18:00</th>
-    							<th scope="col" colSpan="2">19:00</th>
-    							<th scope="col" colSpan="2">20:00</th>
-    						</tr>
-    					</thead>
-    					<tbody className="tp_allbg">
-                            {mapToComponents(this.props)}
-    					</tbody>
-    				</table>
-                </div>
-            );
-        }
+        return (
+            <div className="sect_schLst tbl_sch sect_tml_cell">
+			{ this.props.showflag && (
+				<table className="tbl_sch tml" >
+					<colgroup>
+                        <col width="200" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+						<col width="35" />
+					</colgroup>
+					<thead>
+						<tr>
+                            <th scope="col" className="sect_ctg_cell">회의실명</th>
+							<th scope="col" colSpan="2">07:00</th>
+							<th scope="col" colSpan="2">08:00</th>
+							<th scope="col" colSpan="2">09:00</th>
+							<th scope="col" colSpan="2">10:00</th>
+							<th scope="col" colSpan="2">11:00</th>
+							<th scope="col" colSpan="2">12:00</th>
+							<th scope="col" colSpan="2">13:00</th>
+							<th scope="col" colSpan="2">14:00</th>
+							<th scope="col" colSpan="2">15:00</th>
+							<th scope="col" colSpan="2">16:00</th>
+							<th scope="col" colSpan="2">17:00</th>
+							<th scope="col" colSpan="2">18:00</th>
+							<th scope="col" colSpan="2">19:00</th>
+							<th scope="col" colSpan="2">20:00</th>
+						</tr>
+					</thead>
+					<tbody className="tp_allbg">
+                        {mapToComponents(this.props)}
+					</tbody>
+				</table>
+			)}
+            </div>
+        );
     }
 }

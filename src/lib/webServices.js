@@ -25,8 +25,8 @@ module.exports = function(app){
                 }else{
                     var roomInfo = result.ROOM_INFO;
                     console.log(roomInfo);
-                    response.send(roomInfo);
                 }
+                response.send(roomInfo);
             }
         });
     });
@@ -92,8 +92,8 @@ module.exports = function(app){
                 }else{
                     var rsvrInfo = result.RSVR_INFO;
                     console.log(rsvrInfo);
-                    response.send(rsvrInfo);
                 }
+                response.send(rsvrInfo);
             }
         });
     });

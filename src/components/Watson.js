@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import styles from '../style/App.css';
 
 export default class Watson extends React.Component {

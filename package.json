@@ -25,6 +25,7 @@
     "react-dom": "^15.6.1",
     "react-immutable-proptypes": "^2.1.0",
     "react-redux": "^5.0.5",
+    "react-scripts": "^1.0.10",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "request": "^2.81.0",
