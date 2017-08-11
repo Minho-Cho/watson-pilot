@@ -213,7 +213,7 @@ var Common = (function() {
                 var result = JSON.parse(response);
 
                 //해당시간에 예약가능한 회의실이 있는지 확인
-                var roomInfos = ableRoomInfo(room, data, rsvrTFH + rsvrTFM, rsvrTTH + rsvrTTM);
+                var roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
                  console.log("roomInfos : ",roomInfos)
                 if (roomInfos.length == 0){
                     resolve({});
