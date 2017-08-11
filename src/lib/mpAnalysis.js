@@ -70,6 +70,57 @@ const _nextWord = function(sentence, word, cnt){
     return sentence[idx+cnt].word;
 }
 
+const _findPrevMP = function(sentence, word, mp, w){
+    let idx = sentence.findIndex((item)=>{
+        return item.word === word;
+    });
+    let result = {};
+    for (let i=idx-1 ; i>=0 ; i--){
+        if(sentence[i].pos == mp && (w == undefined || sentence[i].word == w)){
+            result = sentence[i];
+            result.loc = i;
+            break;
+        }
+    }
+    return result;
+}
+
+const _findNextMP = function(sentence, word, mp){
+    let idx = sentence.findIndex((item)=>{
+        return item.word === word;
+    });
+    let result = {};
+    for (let i=idx+1 ; i<sentence.length ; i++){
+        if(sentence[i].pos == mp){
+            result = sentence[i];
+            result.loc = i;
+            break;
+        }
+    }
+    return result;
+}
+
+const _calPrevLength = function(sentence, loc){
+    let cnt = 0;
+    sentence.map((v,i)=>{
+        if(i < loc){
+            cnt+=v.word.length;
+        }
+    });
+    return cnt;
+}
+
+const _originalLoc = function(sentence){
+    var newSentence = [];
+    for (let i=0 ; i<sentence.length ; i++){
+        if (sentence[i] != ' '){
+            let tmp = {char:sentence[i], loc:i};
+            newSentence.push(tmp);
+        }
+    }
+    return newSentence;
+}
+
 const parse = function(text, callback) {
     fs.writeFileSync('TMP_INPUT_FILE',text,'UTF-8');
 
@@ -103,6 +154,7 @@ module.exports = (app) => {
     app.post('/api/mpAnalysis', jsonParser, (request, response) => {
 
         var srcText = request.body.input;
+        var srcTextArr = _originalLoc(srcText);
         var entities = request.body.entities;
         let res = [];
 
@@ -116,7 +168,7 @@ module.exports = (app) => {
         var tmpLocation = '';
 
         parse(srcText, (result)=>{
-            console.log('------start------')
+            // console.log('------start------')
             for (let i in result){
                 let word = result[i][0];
                 let pos = result[i][1];
@@ -125,9 +177,9 @@ module.exports = (app) => {
                     word : word,
                     pos : pos
                 });
-                console.log(word," : ",pos);
+                // console.log(word," : ",pos);
             }
-            console.log('------end------\n\n')
+            // console.log('------end------\n\n')
 
             //날짜,시간 추출
             entities.map((v,i)=>{
@@ -156,8 +208,13 @@ module.exports = (app) => {
             //기본 회의시간은 1시간
             var meetTime = '0100';
 
-            //회의시간 추출
+            //기본 회의제목 셋팅
+            var meetingTitle = '파트 회의';
+            var prevMp = {};
+
+            //회의시간/제목 추출
             res.map((v,i)=>{
+                //회의시간 추출
                 if(v.pos == 'SN'){
                     if (_nextWord(res,v.word) == '분' && _nextWord(res,v.word,2) == '동안'){
                         meetTime = '30';
@@ -177,15 +234,33 @@ module.exports = (app) => {
                               _nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '반' && _nextWord(res,v.word,3)=='동안'){
                         meetTime = t+'30';
                     }
+                //회의제목 추출
+                }else if(v.pos == 'VCP+ETM' || v.pos == 'ETM'){
+                    if (_nextWord(res,v.word) == '이름' || _nextWord(res,v.word) == '제목'){
+                        if (_nextWord(res,v.word,2) == '으로'){
+                            prevMp = _findPrevMP(res,v.word,'JKB','에');
+                            if(JSON.stringify(prevMp) == '{}'){
+                                meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, i)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                            }else{
+                                meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, i)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
+                            }
+                        }
+                    }
+                }else if (v.pos == 'VCP+EC' || v.pos == 'EC'){
+                    prevMp = _findPrevMP(res,v.word,'JKB','에');
+                    let tmp = i;
+                    if(_prevWord(res, v.word) == '이') tmp--;
+                    if(JSON.stringify(prevMp) == '{}'){
+                        meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmp)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                    }else{
+                        meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmp)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
+                    }
                 }
             })
 
             //회의시간 셋팅
             rsvrTTH = _calTime(rsvrTFH, rsvrTFM, meetTime).substr(0,2);
             rsvrTTM = _calTime(rsvrTFH, rsvrTFM, meetTime).substr(2,2);
-
-            //기본 회의제목 셋팅
-            var meetingTitle = '파트 회의';
 
             let resp = {
                 meetingTitle : meetingTitle,

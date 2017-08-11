@@ -154,7 +154,7 @@ var Common = (function() {
     }
 
     function ableRoomInfo(room, data, startTime, endTime){
-        console.log('방정보',room)
+        // console.log('방정보',room)
         var roomInfo = JSON.parse(room);
         Common.sortJsonArrayByProperty(roomInfo, 'MR_NM');
         JSON.parse(data).map((v,i)=>{
@@ -190,16 +190,6 @@ var Common = (function() {
         // })
         // console.log("::::: input :::::",input)
 
-        var rsvrDay = new Date().format('yyyyMMdd');
-        var roomCode = '';
-        var rsvrTFH = '';
-        var rsvrTFM = '';
-        var rsvrTTH = '';
-        var rsvrTTM = '';
-        var rsvrDayInsertFlag = false;
-        var rsvrTimeInsertFlag = false;
-        var tmpLocation = '';
-
         return new Promise((resolve, reject) => {
             //형태소 분석
             fetch('/api/mpAnalysis',{
@@ -214,24 +204,25 @@ var Common = (function() {
 
                 //해당시간에 예약가능한 회의실이 있는지 확인
                 var roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
-                 console.log("roomInfos : ",roomInfos)
+                //  console.log("roomInfos : ",roomInfos)
                 if (roomInfos.length == 0){
-                    resolve({});
-                }
-                var roomInfo = roomInfos[0];
+                    reject('No available time');
+                }else{
+                    var roomInfo = roomInfos[0];
 
-                var timeInfo = {
-                    roomName : roomInfo.MR_NM,
-        			roomTitle : result.meetingTitle,
-                    roomCode : roomInfo.MR_REG_NO,
-                    rsvrDay : result.rsvrDay,
-        			TFH : result.rsvrTFH,
-        			TFM : result.rsvrTFM,
-        			TTH : result.rsvrTTH,
-        			TTM : result.rsvrTTM,
+                    var timeInfo = {
+                        roomName : roomInfo.MR_NM,
+            			roomTitle : result.meetingTitle,
+                        roomCode : roomInfo.MR_REG_NO,
+                        rsvrDay : result.rsvrDay,
+            			TFH : result.rsvrTFH,
+            			TFM : result.rsvrTFM,
+            			TTH : result.rsvrTTH,
+            			TTM : result.rsvrTTM,
+                    }
+                    // console.log("timeInfo : ",timeInfo)
+                    resolve(timeInfo);
                 }
-                console.log("timeInfo : ",timeInfo)
-                resolve(timeInfo);
             })
         });
     }

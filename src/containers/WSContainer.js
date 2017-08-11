@@ -91,22 +91,18 @@ class WSContainer extends Component{
             return response.text();
         }).then((res)=>{
             const { DialogActions, MrInfoActions, roomInfo, entities, input, context} = this.props;
-            //예약시간을 자동으로 판단
+            var newContext = context;
+            //예약시간을 자동으로 판단/가능여부에 따른 분기
             Common.getTimeInfoAuto(roomInfo, res, entities, input).then((rsvrTimeInfo)=>{
-                var newContext = context;
-
-                //예약가능여부에 따른 분기
-                if (Object.keys(rsvrTimeInfo).length === 0) {
-                    console.log('confirmConferenceRoomRsvr called : 예약불가');
-                    newContext.ableRsvr = 'N';
-                    DialogActions.setNewContext(newContext);
-                    // DialogActions.sendMessage(true);
-                }else{
-                    console.log('confirmConferenceRoomRsvr called : 예약가능');
-                    newContext.ableRsvr = 'Y';
-                    MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
-                    DialogActions.setNewContext(newContext);
-                }
+                console.log('confirmConferenceRoomRsvr called : 예약가능');
+                newContext.ableRsvr = 'Y';
+                MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
+                DialogActions.setNewContext(newContext);
+            },(err)=>{
+                console.log('confirmConferenceRoomRsvr called : 예약불가(',err,')');
+                newContext.ableRsvr = 'N';
+                DialogActions.setNewContext(newContext);
+                // DialogActions.sendMessage(true);
             })
         })
     }
