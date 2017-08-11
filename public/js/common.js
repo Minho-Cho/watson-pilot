@@ -56,6 +56,26 @@ var Common = (function() {
         }
     }
 
+    function _calTime(startTime, startMin, time){
+        let endTime = Number(startTime)*100+Number(startMin)+Number(time)+'';
+        if (endTime.substr(2,2) == '60'){
+            endTime = (Number(endTime.substr(0,2))+1)*100+'00'
+            if(endTime < 1000){
+                return '0' + endTime;
+            }else{
+                return '' + endTime;
+            }
+        }else{
+            if(Number(endTime) == 30){
+                return '00' + endTime;
+            }else if(endTime < 1000){
+                return '0' + endTime;
+            }else{
+                return '' + endTime;
+            }
+        }
+    }
+
     function _nextTime(time){
         let hour = Number(time.substr(0,2));
         let min = Number(time.substr(2,2));
@@ -67,6 +87,22 @@ var Common = (function() {
         }
 
         return _paddingZero(hour)+_paddingZero(min);
+    }
+
+    function _prevWord(sentence, word, cnt){
+        cnt = cnt==undefined?1:cnt;
+        let idx = sentence.findIndex((item)=>{
+            return item.word === word;
+        })
+        return sentence[idx-cnt].word;
+    }
+
+    function _nextWord(sentence, word, cnt){
+        cnt = cnt==undefined?1:cnt;
+        let idx = sentence.findIndex((item)=>{
+            return item.word === word;
+        })
+        return sentence[idx+cnt].word;
     }
 
     function makeTimeTable(fh, fm, th, tm){
@@ -144,13 +180,13 @@ var Common = (function() {
     }
 
     function getTimeInfoAuto(room, data, entities, input){
-        var temp = input.text
+        var inputText = input.text
         // console.log("::::: room :::::",room)
         // console.log("::::: data :::::",data)
         // console.log("::::: entitieroom:::")
         // console.log("::::: entities :::::")
         // entities.map((v,i)=>{
-        //     console.log(v.entity, ' : ',v.value, '(',temp.substr(0,v.location[0]),'[',temp.substr(v.location[0],Number(v.location[1])-Number(v.location[0])),']',temp.substr(v.location[1],temp.length),')' )
+        //     console.log(v.entity, ' : ',v.value, '(',inputText.substr(0,v.location[0]),'[',inputText.substr(v.location[0],Number(v.location[1])-Number(v.location[0])),']',inputText.substr(v.location[1],inputText.length),')' )
         // })
         // console.log("::::: input :::::",input)
 
@@ -164,56 +200,40 @@ var Common = (function() {
         var rsvrTimeInsertFlag = false;
         var tmpLocation = '';
 
-        //날짜,시간 추출
-        entities.map((v,i)=>{
-            if (v.entity == 'sys-date'){
-                if (!rsvrDayInsertFlag){
-                    rsvrDay = v.value.replace(/-/gi,'');
-                    tmpLocation  = v.location[0]+':'+v.location[1];
-                    rsvrDayInsertFlag = true;
+        return new Promise((resolve, reject) => {
+            //형태소 분석
+            fetch('/api/mpAnalysis',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({input:inputText, entities:entities})
+            }).then((response) => {
+                return response.text();
+            }).then((response) => {
+                console.log('morphological analysis result : ',response);
+                var result = JSON.parse(response);
+
+                //해당시간에 예약가능한 회의실이 있는지 확인
+                var roomInfos = ableRoomInfo(room, data, rsvrTFH + rsvrTFM, rsvrTTH + rsvrTTM);
+                 console.log("roomInfos : ",roomInfos)
+                if (roomInfos.length == 0){
+                    resolve({});
                 }
-            }else if(v.entity == 'sys-time'){
-                if (!rsvrTimeInsertFlag){
-                    if (v.location[0]+':'+v.location[1] != tmpLocation){
-                        let now = new Date().format("HH:mm");
-                        if(Number(v.value.split(':')[0]) < 9 && v.value.split(':')[0]+':'+v.value.split(':')[1] < now){
-                            rsvrTFH = Number(v.value.split(':')[0]) + 12;
-                        }else{
-                            rsvrTFH = Number(v.value.split(':')[0]);
-                        }
-                        rsvrTFM = v.value.split(':')[1];
-                    }
+                var roomInfo = roomInfos[0];
+
+                var timeInfo = {
+                    roomName : roomInfo.MR_NM,
+        			roomTitle : result.meetingTitle,
+                    roomCode : roomInfo.MR_REG_NO,
+                    rsvrDay : result.rsvrDay,
+        			TFH : result.rsvrTFH,
+        			TFM : result.rsvrTFM,
+        			TTH : result.rsvrTTH,
+        			TTM : result.rsvrTTM,
                 }
-            }
+                console.log("timeInfo : ",timeInfo)
+                resolve(timeInfo);
+            })
         });
-
-        //기본 회의시간은 1시간
-        rsvrTTH =  _paddingZero(Number(rsvrTFH) + 1);
-        rsvrTTM = rsvrTFM;
-
-        //기본 회의제목 셋팅
-        var meetingTitle = '파트 회의';
-
-        //해당시간에 예약가능한 회의실이 있는지 확인
-        var roomInfos = ableRoomInfo(room, data, rsvrTFH + rsvrTFM, rsvrTTH + rsvrTTM);
-         console.log("roomInfos : ",roomInfos)
-        if (roomInfos.length == 0){
-            return {};
-        }
-        var roomInfo = roomInfos[0];
-
-        var timeInfo = {
-            roomName : roomInfo.MR_NM,
-			roomTitle : meetingTitle,
-            roomCode : roomInfo.MR_REG_NO,
-            rsvrDay : rsvrDay,
-			TFH : rsvrTFH,
-			TFM : rsvrTFM,
-			TTH : rsvrTTH,
-			TTM : rsvrTTM,
-        }
-        console.log("timeInfo : ",timeInfo)
-        return timeInfo;
     }
 
     return {

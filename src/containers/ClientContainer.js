@@ -20,12 +20,26 @@ class ClientContainer extends Component{
         DialogActions.setMessage(msg);
     }
 
+    handleAnalysis = (msg) => {
+        console.log('handleAnalysis called');
+
+        return fetch('/api/mpAnalysis',{
+            headers: new Headers({'Content-Type': 'application/json'}),
+            method : 'POST',
+            body : JSON.stringify({input:msg})
+        }).then((response) => {
+            return response.text();
+        }).then((response) => {
+            console.log('result : ',response);
+        })
+    }
+
     render(){
         //console.log(this)
-        const { handleInsert } = this;
+        const { handleInsert, handleAnalysis } = this;
 
         return(
-            <Client onInsert = {handleInsert} />
+            <Client onInsert = {handleInsert} onAnalysis = {handleAnalysis}/>
         );
     }
 }
