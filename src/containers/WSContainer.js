@@ -9,14 +9,14 @@ class WSContainer extends Component{
     shouldComponentUpdate(nextProps, nextState){
         const { MrInfoActions, DialogActions, context } = nextProps;
         DialogActions.sendMessage(false);
-        // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
         // console.log("WS shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
-        //
-        // // console.log('WSContainer : ',this)
+        // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
+        // console.log('WSContainer : ',this)
         var newContext = context;
-        //DialogActions.setNewContext(newContext);
 
-        if (JSON.stringify(nextProps.node)!=JSON.stringify(this.props.node)){
+        //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
+        if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
+            && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
             if(this.props.node == '회의실 목록 확인'){
                 this.getConferenceRoomInfo(true);
@@ -96,8 +96,8 @@ class WSContainer extends Component{
             Common.getTimeInfoAuto(roomInfo, res, entities, input).then((rsvrTimeInfo)=>{
                 console.log('confirmConferenceRoomRsvr called : 예약가능');
                 newContext.ableRsvr = 'Y';
-                MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
                 DialogActions.setNewContext(newContext);
+                MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
             },(err)=>{
                 console.log('confirmConferenceRoomRsvr called : 예약불가(',err,')');
                 newContext.ableRsvr = 'N';
@@ -133,12 +133,12 @@ class WSContainer extends Component{
 
 export default connect(
     (state) => ({
-        node : state.mrInfo.get('node'),
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
-        entities : state.dialog.get('entities')
+        entities : state.dialog.get('entities'),
+        node : state.dialog.get('node')
     }),
     (dispatch) => ({
         DialogActions : bindActionCreators(dialogActions, dispatch),

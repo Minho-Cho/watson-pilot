@@ -37,10 +37,11 @@ class ConversationContainer extends Component{
             entities : json.entities,
             context : json.context,
             input : json.input,
-            output : json.output
+            output : json.output,
+            node : json.output.nodes_visited
         });
         //MrInfoActions.initRsvrRoom();
-        MrInfoActions.setNode(json.output.nodes_visited);
+        // MrInfoActions.setNode(json.output.nodes_visited);
     }
 
     //Watson에 Message전송

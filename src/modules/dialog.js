@@ -9,6 +9,7 @@ const SET_CONTEXTAUTO = 'dialog/SET_CONTEXTAUTO';
 const SET_ENTITIES = 'dialog/SET_ENTITIES';
 const SET_DIALOG = 'dialog/SET_DIALOG';
 const SEND_MESSAGE_TRIGGER = 'dialog/SEND_MESSAGE_TRIGGER';
+const SET_NODE = 'dialog/SET_NODE';
 
 export const setMessage = createAction(SET_MESSAGE);
 export const setReply = createAction(SET_REPLY);
@@ -18,6 +19,7 @@ export const setNewContextAuto = createAction(SET_CONTEXTAUTO);
 export const setEntities = createAction(SET_ENTITIES);
 export const setDialog = createAction(SET_DIALOG);
 export const sendMessage = createAction(SEND_MESSAGE_TRIGGER);
+export const setNode = createAction(SET_NODE);
 
 const initialState = Map({
     reply : '...',
@@ -27,7 +29,8 @@ const initialState = Map({
     entities : {},
     input : '',
     output : '',
-    sendMessageTrigger : false
+    sendMessageTrigger : false,
+    node : ''
 });
 
 export default handleActions({
@@ -53,13 +56,15 @@ export default handleActions({
     },
     [SET_ENTITIES]:(state, action) => state.set('entities', action.payload),
     [SET_DIALOG]:(state, action) => {
-        const { reply, context, entities, input, output} = action.payload;
+        const { reply, context, entities, input, output, node} = action.payload;
 
         return state.set('reply', reply)
                     .set('context', context)
                     .set('entities', entities)
                     .set('input', input)
                     .set('output', output)
+                    .set('node', node)
     },
     [SEND_MESSAGE_TRIGGER]:(state, action) => state.set('sendMessageTrigger', action.payload),
+    [SET_NODE]:(state, action) => state.set('node', action.payload)
 }, initialState);

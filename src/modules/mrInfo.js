@@ -5,14 +5,12 @@ const SET_ROOMINFO = 'mrInfo/SET_ROOMINFO';
 const SET_RSVRINFO = 'mrInfo/SET_RSVRINFO';
 const CONTROL_SHOW_FLAG = 'mrInfo/CONTROL_SHOW_FLAG';
 const INIT_RSVR_ROOM = 'mrInfo/INIT_RSVR_ROOM';
-const SET_NODE = 'mrInfo/SET_NODE';
 const SET_RSVRTIMEINFO = 'mrInfo/SET_RSVRTIMEINFO';
 
 export const setRoomInfo = createAction(SET_ROOMINFO);
 export const setRsvrInfo = createAction(SET_RSVRINFO);
 export const controlShowFlag = createAction(CONTROL_SHOW_FLAG);
 export const initRsvrRoom = createAction(INIT_RSVR_ROOM);
-export const setNode = createAction(SET_NODE);
 export const setRsvrTimeInfo = createAction(SET_RSVRTIMEINFO);
 
 const initialState = Map({
@@ -21,8 +19,7 @@ const initialState = Map({
     rsvrTimeInfo : '',
     roomInfoShowFlag : false,
     rsvrInfoShowFlag : false,
-    rsvrCnfmShowFlag : false,
-    node : ''
+    rsvrCnfmShowFlag : false
 });
 
 export default handleActions({
@@ -60,6 +57,5 @@ export default handleActions({
                     .set('rsvrInfoShowFlag', false)
                     .set('rsvrCnfmShowFlag', false)
     },
-    [SET_NODE]:(state, action) => state.set('node', action.payload),
     [SET_RSVRTIMEINFO]:(state, action) => state.set('rsvrTimeInfo', action.payload)
 }, initialState);
