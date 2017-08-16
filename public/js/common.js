@@ -218,7 +218,16 @@ var Common = (function() {
 
                 //해당시간에 예약가능한 회의실이 있는지 확인
                 if(result.apDist == 'AM'){
-                    let thisTime = '0900';
+                    let thisTime = new Date().format('HHmm');
+                    if (thisTime < '0900') thisTime = '0900';
+                    if(thisTime.substr(-2)>'10' && thisTime.substr(-2)<='40'){
+                        thisTime = thisTime.substr(0,2)+'30';
+                    }else if(thisTime.substr(-2)<='10'){
+                        thisTime = thisTime.substr(0,2)+'00';
+                    }else if(thisTime.substr(-2)>='40'){
+                        thisTime = _paddingZero(Number(thisTime.substr(0,2))+1)+'00';
+                    }
+                    if (thisTime > '1130') thisTime = '1130';
                     while(thisTime != '1130'){
                         roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
                         if (JSON.stringify(roomInfos) != '{}'){
@@ -232,7 +241,16 @@ var Common = (function() {
                         }
                     }
                 }else if (result.apDist == 'PM'){
-                    let thisTime = '1300';
+                    let thisTime = new Date().format('HHmm');
+                    if (thisTime < '0300') thisTime = '0300';
+                    if(thisTime.substr(-2)>'10' && thisTime.substr(-2)<='40'){
+                        thisTime = thisTime.substr(0,2)+'30';
+                    }else if(thisTime.substr(-2)<='10'){
+                        thisTime = thisTime.substr(0,2)+'00';
+                    }else if(thisTime.substr(-2)>='40'){
+                        thisTime = _paddingZero(Number(thisTime.substr(0,2))+1)+'00';
+                    }
+                    if (thisTime > '1700') thisTime = '1700';
                     while(thisTime != '1700'){
                         roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
                         if (JSON.stringify(roomInfos) != '{}'){
@@ -249,8 +267,8 @@ var Common = (function() {
                     roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
                 }
 
-                // console.log("roomInfos : ",roomInfos)
-                if (roomInfos.length == 0){
+                //  console.log("roomInfos : ",roomInfos)
+                if (JSON.stringify(roomInfos) == '{}' || roomInfos.length == 0){
                     reject('No available time');
                 }else{
                     var roomInfo = roomInfos[0];

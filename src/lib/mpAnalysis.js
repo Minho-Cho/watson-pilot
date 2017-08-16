@@ -216,34 +216,40 @@ module.exports = (app) => {
             //회의시간/제목 추출
             res.map((v,i)=>{
                 //오전/오후일 경우 판단
-                if(v.word == '오전' && (_nextWord(res, v.word) == '에' || _nextWord(res, v.word, 2) == '에')) {
+                if(v.word == '오전' && (res[i+1].word == '에' || res[i+2].word == '에')) {
                     apDist = 'AM';
-                }else if(v.word == '오후' && (_nextWord(res, v.word) == '에' || _nextWord(res, v.word,2) == '에')) {
+                }else if(v.word == '오후' && (res[i+1].word == '에' || res[i+2].word == '에')) {
                     apDist = 'PM';
                 //회의시간 추출
                 }else if(v.pos == 'SN'){
-                    if (_nextWord(res,v.word) == '분' && _nextWord(res,v.word,2) == '동안'){
+                    if (res[i+1].word == '분' && res[i+2].word == '동안'){
                         meetTime = '30';
-                    }else if (_nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '동안'){
+                    }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
                         meetTime = v.word+'00';
-                    }else if (_nextWord(res,v.word) == '시간' && _nextWord(res,v.pos,2) == 'SN' && _nextWord(res,v.word,3)=='분' && _nextWord(res,v.word,4) == '동안' ||
-                              _nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '반' && _nextWord(res,v.word,3)=='동안'){
+                    }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
+                              res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
                         meetTime = v.word+'30';
+                    }else if (res[i+1].word == '시' && res[i+2].word == '반' && res[i+3].word == '에'){
+                        rsvrTFH = _paddingZero(v.word);
+                        rsvrTFM = '30';
                     }
                 }else if(v.pos == 'MM'){
                     let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
-                    if (_nextWord(res,v.word) == '분' && _nextWord(res,v.word,2) == '동안'){
+                    if (res[i+1].word == '분' && res[i+2].word == '동안'){
                         meetTime = '30';
-                    }else if (_nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '동안'){
+                    }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
                         meetTime = t+'00';
-                    }else if (_nextWord(res,v.word) == '시간' && _nextWord(res,v.pos,2) == 'SN' && _nextWord(res,v.word,3)=='분' && _nextWord(res,v.word,4) == '동안' ||
-                              _nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '반' && _nextWord(res,v.word,3)=='동안'){
+                    }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
+                              res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
                         meetTime = t+'30';
+                    }else if (res[i+1].word == '시' && res[i+2].word == '반' && res[i+3].word == '에'){
+                        rsvrTFH = _paddingZero(t);
+                        rsvrTFM = '30';
                     }
                 //회의제목 추출
                 }else if(v.pos == 'VCP+ETM' || v.pos == 'ETM'){
-                    if (_nextWord(res,v.word) == '이름' || _nextWord(res,v.word) == '제목'){
-                        if (_nextWord(res,v.word,2) == '으로'){
+                    if (res[i+1].word == '이름' || res[i+1].word == '제목'){
+                        if (res[i+2].word == '으로'){
                             prevMp = _findPrevMP(res,v.word,'JKB','에');
                             if(JSON.stringify(prevMp) == '{}'){
                                 meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, i)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
@@ -255,7 +261,7 @@ module.exports = (app) => {
                 }else if (v.pos == 'VCP+EC' || v.pos == 'EC'){
                     prevMp = _findPrevMP(res,v.word,'JKB','에');
                     let tmp = i;
-                    if(_prevWord(res, v.word) == '이') tmp--;
+                    if(res[i-1].word == '이') tmp--;
                     if(JSON.stringify(prevMp) == '{}'){
                         meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmp)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
                     }else{
