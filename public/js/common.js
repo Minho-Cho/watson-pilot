@@ -56,9 +56,11 @@ var Common = (function() {
         }
     }
 
-    function _calTime(startTime, startMin, time){
+    function _calTime(startTM, time){
+        let startTime = startTM.substr(0,2);
+        let startMin = startTM.substr(2,2);
         let endTime = Number(startTime)*100+Number(startMin)+Number(time)+'';
-        if (endTime.substr(2,2) == '60'){
+        if (endTime.substr(-2) == '60'){
             endTime = (Number(endTime.substr(0,2))+1)*100+'00'
             if(endTime < 1000){
                 return '0' + endTime;
@@ -73,6 +75,16 @@ var Common = (function() {
             }else{
                 return '' + endTime;
             }
+        }
+    }
+
+    function _calTimeR(startTime, startMin, endTime, endMin){
+        if (startMin == endMin){
+            return _paddingZero(Number(Number(endTime) - Number(startTime)))+'00';
+        }else if(startMin == '00'){
+            return _paddingZero(Number(Number(endTime) - Number(startTime)))+'30';
+        }else{
+            return _paddingZero(Number(Number(endTime) - Number(startTime) - 1))+'30';
         }
     }
 
@@ -201,10 +213,43 @@ var Common = (function() {
             }).then((response) => {
                 console.log('morphological analysis result : ',response);
                 var result = JSON.parse(response);
+                let period = _calTimeR(result.rsvrTFH, result.rsvrTFM, result.rsvrTTH, result.rsvrTTM);
+                var roomInfos = {};
 
                 //해당시간에 예약가능한 회의실이 있는지 확인
-                var roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
-                //  console.log("roomInfos : ",roomInfos)
+                if(result.apDist == 'AM'){
+                    let thisTime = '0900';
+                    while(thisTime != '1130'){
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
+                        if (JSON.stringify(roomInfos) != '{}'){
+                            result.rsvrTFH = thisTime.substr(0,2);
+                            result.rsvrTFM = thisTime.substr(2,2);
+                            result.rsvrTTH = _calTime(thisTime, period).substr(0,2);
+                            result.rsvrTTM = _calTime(thisTime, period).substr(2,2);
+                            break;
+                        }else{
+                            thisTime = _calTime(thisTime, '0030');
+                        }
+                    }
+                }else if (result.apDist == 'PM'){
+                    let thisTime = '1300';
+                    while(thisTime != '1700'){
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
+                        if (JSON.stringify(roomInfos) != '{}'){
+                            result.rsvrTFH = thisTime.substr(0,2);
+                            result.rsvrTFM = thisTime.substr(2,2);
+                            result.rsvrTTH = _calTime(thisTime, period).substr(0,2);
+                            result.rsvrTTM = _calTime(thisTime, period).substr(2,2);
+                            break;
+                        }else{
+                            thisTime = _calTime(thisTime, '0030');
+                        }
+                    }
+                }else{
+                    roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
+                }
+
+                // console.log("roomInfos : ",roomInfos)
                 if (roomInfos.length == 0){
                     reject('No available time');
                 }else{

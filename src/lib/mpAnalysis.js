@@ -163,6 +163,7 @@ module.exports = (app) => {
         var rsvrTFM = '';
         var rsvrTTH = '';
         var rsvrTTM = '';
+        var apDist = '';
         var rsvrDayInsertFlag = false;
         var rsvrTimeInsertFlag = false;
         var tmpLocation = '';
@@ -214,8 +215,13 @@ module.exports = (app) => {
 
             //회의시간/제목 추출
             res.map((v,i)=>{
+                //오전/오후일 경우 판단
+                if(v.word == '오전' && (_nextWord(res, v.word) == '에' || _nextWord(res, v.word, 2) == '에')) {
+                    apDist = 'AM';
+                }else if(v.word == '오후' && (_nextWord(res, v.word) == '에' || _nextWord(res, v.word,2) == '에')) {
+                    apDist = 'PM';
                 //회의시간 추출
-                if(v.pos == 'SN'){
+                }else if(v.pos == 'SN'){
                     if (_nextWord(res,v.word) == '분' && _nextWord(res,v.word,2) == '동안'){
                         meetTime = '30';
                     }else if (_nextWord(res,v.word) == '시간' && _nextWord(res,v.word,2) == '동안'){
@@ -268,7 +274,8 @@ module.exports = (app) => {
                 rsvrTFH : rsvrTFH,
                 rsvrTFM : rsvrTFM,
                 rsvrTTH : rsvrTTH,
-                rsvrTTM : rsvrTTM
+                rsvrTTM : rsvrTTM,
+                apDist : apDist
             }
 
             response.send(resp)
