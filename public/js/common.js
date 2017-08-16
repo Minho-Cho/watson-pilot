@@ -242,7 +242,7 @@ var Common = (function() {
                     }
                 }else if (result.apDist == 'PM'){
                     let thisTime = new Date().format('HHmm');
-                    if (thisTime < '0300') thisTime = '0300';
+                    if (thisTime < '1300') thisTime = '1300';
                     if(thisTime.substr(-2)>'10' && thisTime.substr(-2)<='40'){
                         thisTime = thisTime.substr(0,2)+'30';
                     }else if(thisTime.substr(-2)<='10'){
