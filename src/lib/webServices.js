@@ -72,7 +72,7 @@ module.exports = function(app){
                     RSVR_FROM_HH: rsvrInfo.TFH,
                     RSVR_FROM_MI: rsvrInfo.TFM,
                     RSVR_TO_HH: rsvrInfo.TTH,
-                    RSVR_TO_MI: rsvrInfo.TFM,
+                    RSVR_TO_MI: rsvrInfo.TTM,
                     MEET_TITLE: rsvrInfo.roomTitle,
                     PROC_STS_CD: '',
                     BTN_STS_CD: '',

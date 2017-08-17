@@ -177,7 +177,8 @@ var Common = (function() {
             while (thisTime < endTime){
                 if(tmp.indexOf(thisTime) > -1){
                     let idx = roomInfo.findIndex((item)=>{
-                        // if(item.MR_REG_NO === v.MR_REG_NO) console.log(thisTime,'에 ',item.MR_NM,'탈락');
+                        console.log(thisTime,'------',item)
+                        if(item.MR_REG_NO === v.MR_REG_NO) console.log(thisTime,'에 ',item.MR_NM,'탈락');
                         return item.MR_REG_NO === v.MR_REG_NO;
                     })
                     if (idx > -1) roomInfo.splice(idx,1);
