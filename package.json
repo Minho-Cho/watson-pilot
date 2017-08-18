@@ -19,6 +19,7 @@
     "dotenv-webpack": "^1.5.3",
     "express": "^4.15.3",
     "immutable": "^3.8.1",
+    "mongoose": "^4.11.7",
     "postcss-flexbugs-fixes": "^3.2.0",
     "postcss-loader": "^2.0.6",
     "react": "^15.6.1",

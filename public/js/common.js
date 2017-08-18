@@ -25,6 +25,22 @@ String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s
 String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
 Number.prototype.zf = function(len){return this.toString().zf(len);};
 
+Array.prototype.delete = function(key, value){
+    let idx = 0;
+    this.map((v,i)=>{ if(v[key] === value){
+        this.splice(idx,1);
+    }else{
+        idx++;
+    }});
+    return this;
+};
+
+Array.prototype.remove = function(key, value){
+    let newArray = new Array();
+    this.map((v,i)=>{ if(v[key] !== value) newArray.push(v)});
+    return newArray;
+}
+
 var Common = (function() {
 
     function sortJsonArrayByProperty(objArray, prop, direction){
@@ -165,9 +181,17 @@ var Common = (function() {
         return tt;
     }
 
-    function ableRoomInfo(room, data, startTime, endTime){
+    function ableRoomInfo(room, data, startTime, endTime, target){
         // console.log('방정보',room)
         var roomInfo = JSON.parse(room);
+        var temp = JSON.parse(JSON.stringify(roomInfo));
+        if (target != ''){
+            temp.map((v,i)=>{
+                if (v.MR_REG_NO != target){
+                    roomInfo.delete('MR_REG_NO', v.MR_REG_NO);
+                }
+            });
+        }
         Common.sortJsonArrayByProperty(roomInfo, 'MR_NM');
         JSON.parse(data).map((v,i)=>{
             let tmp = Common.makeTimeTable(v.RSVR_FR_HH, v.RSVR_FR_MI, v.RSVR_TO_HH, v.RSVR_TO_MI);
@@ -177,8 +201,8 @@ var Common = (function() {
             while (thisTime < endTime){
                 if(tmp.indexOf(thisTime) > -1){
                     let idx = roomInfo.findIndex((item)=>{
-                        console.log(thisTime,'------',item)
-                        if(item.MR_REG_NO === v.MR_REG_NO) console.log(thisTime,'에 ',item.MR_NM,'탈락');
+                        // console.log(thisTime,'------',item)
+                        // if(item.MR_REG_NO === v.MR_REG_NO) console.log(thisTime,'에 ',item.MR_NM,'탈락');
                         return item.MR_REG_NO === v.MR_REG_NO;
                     })
                     if (idx > -1) roomInfo.splice(idx,1);
@@ -187,7 +211,7 @@ var Common = (function() {
             }
         })
 
-        roomInfo.pop({MR_REG_NO : 'ICTSTMTR'}); //예외처리
+        roomInfo.delete('MR_REG_NO', 'ICTSTMTR'); //예외처리
 
         return roomInfo;
     }
@@ -230,7 +254,7 @@ var Common = (function() {
                     }
                     if (thisTime > '1130') thisTime = '1130';
                     while(thisTime != '1130'){
-                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room);
                         if (JSON.stringify(roomInfos) != '{}'){
                             result.rsvrTFH = thisTime.substr(0,2);
                             result.rsvrTFM = thisTime.substr(2,2);
@@ -253,7 +277,7 @@ var Common = (function() {
                     }
                     if (thisTime > '1700') thisTime = '1700';
                     while(thisTime != '1700'){
-                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period));
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room);
                         if (JSON.stringify(roomInfos) != '{}'){
                             result.rsvrTFH = thisTime.substr(0,2);
                             result.rsvrTFM = thisTime.substr(2,2);
@@ -265,12 +289,16 @@ var Common = (function() {
                         }
                     }
                 }else{
-                    roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM);
+                    roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM, result.room);
                 }
 
                 //  console.log("roomInfos : ",roomInfos)
                 if (JSON.stringify(roomInfos) == '{}' || roomInfos.length == 0){
-                    reject('No available time');
+                    if (result.room == ''){
+                        reject('NN');
+                    }else{
+                        reject('NT');
+                    }
                 }else{
                     var roomInfo = roomInfos[0];
 

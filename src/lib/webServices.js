@@ -76,7 +76,7 @@ module.exports = function(app){
                     MEET_TITLE: rsvrInfo.roomTitle,
                     PROC_STS_CD: '',
                     BTN_STS_CD: '',
-                    EMP_ID: 'X0006832',
+                    EMP_ID: process.env.LOGIN_ID,
                     TB_PWD: 'CRRS'
         }
         egssRequest.addConferenceRoomRsvrParameter = new Service.Types.addConferenceRoomRsvrParameter(json);

@@ -3,11 +3,12 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as dialogActions from '../modules/dialog';
 import * as mrInfoActions from '../modules/mrInfo';
+import * as configActions from '../modules/config';
 
 class WSContainer extends Component{
 
     shouldComponentUpdate(nextProps, nextState){
-        const { MrInfoActions, DialogActions, context } = nextProps;
+        const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
         DialogActions.sendMessage(false);
         // console.log("WS shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
         // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
@@ -18,6 +19,7 @@ class WSContainer extends Component{
         if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
+            ConfigActions.setShowflag(false);
             if(this.props.node == '회의실 목록 확인'){
                 this.getConferenceRoomInfo(true);
             }else if(this.props.node == '회의실 예약정보 확인'){
@@ -32,6 +34,15 @@ class WSContainer extends Component{
                 });
             }else if(this.props.node == '회의실 예약진행'){
                 this.addConferenceRoomRsvr();
+            }else if(this.props.node == '설정정보 확인'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.getSettingInfo();
+            }else if(this.props.node == '설정정보 생성'){
+                this.makeSettingInfo();
             }else if(this.props.node != ''){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -43,39 +54,83 @@ class WSContainer extends Component{
         return false;
     }
 
+    //환경설정정보 확인
+    getSettingInfo = () =>{
+        console.log('getSettingInfo called');
+        return fetch('/api/common/getSettingInfo').then((response) => {
+            return response.text();
+        }).then((res)=>{
+            if (res == ''){
+                const { context, DialogActions } = this.props;
+                var newContext = context;
+                newContext.notExistSettings = 'Y';
+                DialogActions.setNewContext(newContext);
+            }else{
+                const { ConfigActions } = this.props;
+                ConfigActions.setSettings({
+                    settings : JSON.parse(res)
+                });
+            }
+        })
+    }
+
+    //환경설정정보 생성
+    makeSettingInfo = () =>{
+        console.log('makeSettingInfo called');
+        return fetch('/api/common/makeSettingInfo',{
+            headers: new Headers({'Content-Type': 'application/json'}),
+            method : 'POST',
+            body : JSON.stringify({})
+        }).then((response) => {
+            return response.text();
+        }).then((res)=>{
+            const { ConfigActions } = this.props;
+            ConfigActions.setSettings({
+                settings : JSON.parse(res)
+            });
+        })
+    }
+
     //회의실 목록 조회
     getConferenceRoomInfo = (showflag) =>{
         console.log('getConferenceRoomInfo called : ',showflag);
-        return fetch('/api/webservice/getConferenceRoomInfo').then((response) => {
-            return response.text();
-        }).then((res)=>{
-            // Common.sortJsonArrayByProperty(res, 'MR_NM');
-            const { MrInfoActions } = this.props;
-            MrInfoActions.setRoomInfo({
-                roomInfo : res,
-                roomInfoShowFlag : showflag
+        return new Promise((resolve, reject)=>{
+            fetch('/api/webservice/getConferenceRoomInfo').then((response) => {
+                return response.text();
+            }).then((res)=>{
+                // Common.sortJsonArrayByProperty(res, 'MR_NM');
+                const { MrInfoActions } = this.props;
+                MrInfoActions.setRoomInfo({
+                    roomInfo : res,
+                    roomInfoShowFlag : showflag
+                });
+                resolve();
             });
-        })
+        });
     }
 
     //회의실 예약정보 조회
     getConferenceRoomRsvrInfo = (showflag) =>{
         console.log('getConferenceRoomRsvrInfo called : ',showflag);
-        this.getConferenceRoomInfo(false);
-        const {context, entities} = this.props;
-        return fetch('/api/webservice/getConferenceRoomRsvrInfo', {
-            headers: new Headers({'Content-Type': 'application/json'}),
-            method : 'POST',
-            body : JSON.stringify({context:context, entities:entities})
-        }).then((response) => {
-            return response.text();
-        }).then((res)=>{
-            const { MrInfoActions } = this.props;
-            MrInfoActions.setRsvrInfo({
-                rsvrInfo : res,
-                rsvrInfoShowFlag : showflag
+        return new Promise((resolve, reject)=>{
+            this.getConferenceRoomInfo(false).then(()=>{
+                const {context, entities} = this.props;
+                return fetch('/api/webservice/getConferenceRoomRsvrInfo', {
+                    headers: new Headers({'Content-Type': 'application/json'}),
+                    method : 'POST',
+                    body : JSON.stringify({context:context, entities:entities})
+                }).then((response) => {
+                    return response.text();
+                }).then((res)=>{
+                    const { MrInfoActions } = this.props;
+                    MrInfoActions.setRsvrInfo({
+                        rsvrInfo : res,
+                        rsvrInfoShowFlag : showflag
+                    });
+                    resolve();
+                });
             });
-        })
+        });
     }
 
     //회의실 예약가능 판단
@@ -100,7 +155,7 @@ class WSContainer extends Component{
                 MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
             },(err)=>{
                 console.log('confirmConferenceRoomRsvr called : 예약불가(',err,')');
-                newContext.ableRsvr = 'N';
+                newContext.ableRsvr = err;
                 DialogActions.setNewContext(newContext);
                 // DialogActions.sendMessage(true);
             })
@@ -142,6 +197,7 @@ export default connect(
     }),
     (dispatch) => ({
         DialogActions : bindActionCreators(dialogActions, dispatch),
-        MrInfoActions : bindActionCreators(mrInfoActions, dispatch)
+        MrInfoActions : bindActionCreators(mrInfoActions, dispatch),
+        ConfigActions : bindActionCreators(configActions, dispatch)
     })
 )(WSContainer);

@@ -122,28 +122,29 @@ const _originalLoc = function(sentence){
     return newSentence;
 }
 
-const parse = function(text, callback) {
-    fs.writeFileSync('TMP_INPUT_FILE',text,'UTF-8');
+const parse = function(text) {
 
-    let res = [];
+    return new Promise((resolve, reject)=>{
+        fs.writeFileSync('TMP_INPUT_FILE',text,'UTF-8');
 
-    try{
-        run_cmd('mecab.exe', ['-o', 'TMP_OUTPUT_FILE', 'TMP_INPUT_FILE'], (text) => {
-            res = fs.readFileSync('TMP_OUTPUT_FILE', 'UTF-8');
-            res = res.replace(/\r/g,'').replace(/\s+$/,'');
-            var lines = res.split('\n');
+        let res = [];
 
-            var result = lines.map((line)=>{
-                return line.replace('\t', ',').split(',');
+        try{
+            run_cmd('mecab.exe', ['-o', 'TMP_OUTPUT_FILE', 'TMP_INPUT_FILE'], (text) => {
+                res = fs.readFileSync('TMP_OUTPUT_FILE', 'UTF-8');
+                res = res.replace(/\r/g,'').replace(/\s+$/,'');
+                var lines = res.split('\n');
+
+                var result = lines.map((line)=>{
+                    return line.replace('\t', ',').split(',');
+                })
+
+                resolve(result);
             })
-
-            callback(result);
-        })
-    }catch(e){
-        console.log('Morphological Analysys Error : ',e);
-    }
-
-
+        }catch(e){
+            reject(e);
+        }
+    });
 }
 
 module.exports = (app) => {
@@ -168,8 +169,9 @@ module.exports = (app) => {
         var rsvrDayInsertFlag = false;
         var rsvrTimeInsertFlag = false;
         var tmpLocation = '';
+        var room = '';
 
-        parse(srcText, (result)=>{
+        parse(srcText).then((result)=>{
             // console.log('------start------')
             for (let i in result){
                 let word = result[i][0];
@@ -182,8 +184,16 @@ module.exports = (app) => {
                 // console.log(word," : ",pos);
             }
             // console.log('------end------\n\n')
+            var now = _paddingZero(new Date().getHours()) + ':' + _paddingZero(new Date().getMinutes());
+            rsvrTFH = now.substr(0,2);
+            if (now.substr(-2)>='10' && now.substr(-2)<'40'){
+                rsvrTFM = '30';
+            }else{
+                rsvrTFM = '00';
+                rsvrTFH = _paddingZero(Number(rsvrTFH)+1);
+            }
 
-            //날짜,시간 추출
+            //날짜,시간,회의실 추출
             entities.map((v,i)=>{
                 if (v.entity == 'sys-date'){
                     if (!rsvrDayInsertFlag){
@@ -194,7 +204,6 @@ module.exports = (app) => {
                 }else if(v.entity == 'sys-time'){
                     if (!rsvrTimeInsertFlag){
                         if (v.location[0]+':'+v.location[1] != tmpLocation){
-                            let now = _paddingZero(new Date().getHours()) + ':' + _paddingZero(new Date().getMinutes());
                             if(Number(v.value.split(':')[0]) < 9 && v.value.split(':')[0]+':'+v.value.split(':')[1] < now){
                                 rsvrTFH = Number(v.value.split(':')[0]) + 12;
                             }else{
@@ -204,6 +213,8 @@ module.exports = (app) => {
                             rsvrTimeInsertFlag = true;
                         }
                     }
+                }else if(v.entity == 'meetingRoom'){
+                    room = v.value;
                 }
             });
 
@@ -309,10 +320,13 @@ module.exports = (app) => {
                 rsvrTFM : rsvrTFM,
                 rsvrTTH : rsvrTTH,
                 rsvrTTM : rsvrTTM,
+                room : room,
                 apDist : apDist
             }
 
             response.send(resp)
+        },(err)=>{
+            console.log('Morphological Analysys Error : ',err);
         });
     });
 };
