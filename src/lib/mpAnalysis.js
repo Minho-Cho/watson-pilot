@@ -155,17 +155,14 @@ module.exports = (app) => {
     var jsonParser = bodyParser.json();
     var urlencodedParser = bodyParser.urlencoded({ extended: true });
 
-    //기본 회의시간은 1시간
-    var meetTime = '0100';
+    var meetingTitle = '';
+    var meetTime = '';
 
-    //기본 회의제목 셋팅
-    var meetingTitle = '파트 회의';
+    app.post('/api/mpAnalysis', jsonParser, (request, response) => {
 
-    Settings.find({user:process.env.LOGIN_ID}, (err, res)=>{
-        meetingTitle = res[0].title;
-        meetTime = res[0].duration;
-
-        app.post('/api/mpAnalysis', jsonParser, (request, response) => {
+        Settings.find({user:process.env.LOGIN_ID}, (e, settingData)=>{
+            meetingTitle = settingData[0].title;
+            meetTime = settingData[0].duration;
 
             var srcText = request.body.input;
             var srcTextArr = _originalLoc(srcText);

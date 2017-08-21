@@ -26,10 +26,10 @@ module.exports = (app) => {
 
     app.post('/api/common/makeSettingInfo', jsonParser, (request, response) => {
         Settings.create({
-            user:process.env.LOGIN_ID,
-            title: '파트 회의',
-            duration: '0100',
-            meetingRoom: '1-2'
+            user: process.env.LOGIN_ID,
+            title: process.env.TITLE,
+            duration: process.env.DURATION,
+            meetingRoom: process.env.MEETINGROOM
         }, (err, res)=>{
             response.send(res);
         });
