@@ -26,9 +26,9 @@ class ConversationContainer extends Component{
 
         var entities = json.entities;
         var temp = json.input.text;
-        entities.map((v,i)=>{
-            console.log(v.entity, ' : ',v.value, '(',temp.substr(0,v.location[0]),'[',temp.substr(v.location[0],Number(v.location[1])-Number(v.location[0])),']',temp.substr(v.location[1],temp.length),')' )
-        })
+        // entities.map((v,i)=>{
+        //     console.log(v.entity, ' : ',v.value, '(',temp.substr(0,v.location[0]),'[',temp.substr(v.location[0],Number(v.location[1])-Number(v.location[0])),']',temp.substr(v.location[1],temp.length),')' )
+        // })
 
         const { DialogActions, MrInfoActions } = this.props;
 

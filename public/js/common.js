@@ -182,7 +182,8 @@ var Common = (function() {
     }
 
     function ableRoomInfo(room, data, startTime, endTime, target){
-        // console.log('방정보',room)
+        console.log('방정보',room)
+        console.log('가능회의실 판단------',data,'-----',startTime,'------',endTime,'-----',target)
         var roomInfo = JSON.parse(room);
         var temp = JSON.parse(JSON.stringify(roomInfo));
         if (target != ''){
