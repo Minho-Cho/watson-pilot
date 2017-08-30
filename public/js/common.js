@@ -21,6 +21,20 @@ Date.prototype.format = function(f) {
     });
 };
 
+String.prototype.lpad = function(padLength, padString){
+    var s = this;
+    while(s.length < padLength)
+        s = padString + s;
+    return s;
+};
+
+String.prototype.rpad = function(padLength, padString){
+    var s = this;
+    while(s.length < padLength)
+        s += padString;
+    return s;
+};
+
 String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s += this; } return s;};
 String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
 Number.prototype.zf = function(len){return this.toString().zf(len);};
@@ -137,7 +151,7 @@ var Common = (function() {
         var tt = '';
         for (var i=fh;i<=th;i++){
             if (fh == th){
-                tt = fh+'00,'+fh+'30';
+                tt = fh+'00';
             }else{
                 if(fm == '00'){
                     if(tm == '00'){
@@ -320,10 +334,36 @@ var Common = (function() {
         });
     }
 
+    function getTimeDate(entities, input){
+        var inputText = input.text
+
+        return new Promise((resolve, reject) => {
+            //형태소 분석
+            fetch('/api/mpAnalysis',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({input:inputText, entities:entities})
+            }).then((response) => {
+                return response.text();
+            }).then((response) => {
+                console.log('morphological analysis result : ',response);
+                var result = JSON.parse(response);
+
+                var timeDate = {
+                    rsvrDay : result.rsvrDay,
+                    TFH : result.rsvrTFH,
+                    TFM : result.rsvrTFM
+                }
+                resolve(timeDate);
+            })
+        });
+    }
+
     return {
       sortJsonArrayByProperty: sortJsonArrayByProperty,
       paddingZero: _paddingZero,
       makeTimeTable: makeTimeTable,
-      getTimeInfoAuto: getTimeInfoAuto
+      getTimeInfoAuto: getTimeInfoAuto,
+      getTimeDate: getTimeDate
     };
 }());

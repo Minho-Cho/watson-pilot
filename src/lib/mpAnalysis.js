@@ -245,7 +245,7 @@ module.exports = (app) => {
                         }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
                                   res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
                             meetTime = v.word+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '에' || res[i+3].word == '부터')){
+                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
                             if (Number(v.word)<9){
                                 rsvrTFH = _paddingZero((Number(v.word)+12));
                             }else{
@@ -262,7 +262,7 @@ module.exports = (app) => {
                         }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
                                   res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
                             meetTime = _paddingZero(t)+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '에' || res[i+3].word == '부터')){
+                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
                             if (t<9){
                                 rsvrTFH = _paddingZero(t+12);
                             }else{

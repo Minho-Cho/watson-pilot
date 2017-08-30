@@ -9,9 +9,11 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
     render(){
         const mapToComponents = (data) => {
             if (data.content == '' || data.content==null || data.content==undefined) return false;
-            let rsvrInfo = JSON.parse(data.content);
+            var rsvrInfo = JSON.parse(data.content);
+			rsvrInfo.sort((a,b)=>{
+				return (a.MR_REG_NO.rpad(15,'0')+a.RSVR_FR_HH) < (b.MR_REG_NO.rpad(15,'0')+b.RSVR_FR_HH) ? -1 : (a.MR_REG_NO.rpad(15,'0')+a.RSVR_FR_HH) > (b.MR_REG_NO.rpad(15,'0')+b.RSVR_FR_HH) ? 1 : 0;
+			});
             var meetingRoomSet = [];
-// console.log('L:::::::::::::::::::::::::::',data.roomInfo,'_____',typeof data.roomInfo)
 			var roomInfo = JSON.parse(data.roomInfo);
             roomInfo.map((v, i) => {
                 if (meetingRoomSet.find((item, idx)=>{return item.MR_REG_NO === v.MR_REG_NO}) == undefined){
@@ -28,11 +30,9 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
     		for (let i = 0 ; i < rsvrInfo.length; i++) {
     			let tmp = Common.makeTimeTable(rsvrInfo[i].RSVR_FR_HH, rsvrInfo[i].RSVR_FR_MI, rsvrInfo[i].RSVR_TO_HH, rsvrInfo[i].RSVR_TO_MI);
     			let mrRegNo = rsvrInfo[i].MR_REG_NO;
-
     			for (let j = 0; j < meetingRoomSet.length; j++) {
     				if (mrRegNo == meetingRoomSet[j].MR_REG_NO) {
     					idx = j;
-
     					if (idx != prevIdx) {
     						colorIdx = 0;
     					}
@@ -54,7 +54,6 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
 
     			for (let j = 0; j < timeTable.length; j++) {
     				if (fillTimeTable[cnt] == timeTable[j]) {
-    					let tmp = Common.paddingZero(idx);
     					if (colorIdx % 2 == 0) {
                             meetingRoomSet[prevIdx]['RSVR_T'+j] = 'A';
     					} else {

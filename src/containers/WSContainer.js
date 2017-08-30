@@ -34,6 +34,15 @@ class WSContainer extends Component{
                 });
             }else if(this.props.node == '회의실 예약진행'){
                 this.addConferenceRoomRsvr();
+            }else if(this.props.node == '회의 자동시작'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.checkAutoStart();
+            }else if(this.props.node == '자동시작 가능시'){
+                this.rsvrAutoStart();
             }else if(this.props.node == '설정정보 확인'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -52,6 +61,59 @@ class WSContainer extends Component{
             }
         }
         return false;
+    }
+
+    //자동시작 가능여부 확인
+    checkAutoStart = () =>{
+        console.log('checkAutoStart called');
+        const {input, entities} = this.props;
+        var data = {};
+        Common.getTimeDate(entities, input).then((timeDateInfo)=>{
+            console.log('timeDateInfo called : ',timeDateInfo);
+            data = timeDateInfo;
+            return fetch('/api/webservice/checkAutoStart',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({timeDateInfo:data})
+            }).then((response) => {
+                return response.text();
+            }).then((res)=>{
+                if (res != ''){
+                    const { context, DialogActions } = this.props;
+                    var newContext = context;
+                    newContext.ableAutoStart = 'Y';
+                    var reqstInfo = {
+                        reqstNo : res,
+                        startDate : data.rsvrDay,
+                        startTime : data.TFH + data.TFM,
+                        startTimeDP : Number(data.TFH)+':'+data.TFM
+                    };
+                    newContext.reqstInfo = reqstInfo;
+                    DialogActions.setNewContext(newContext);
+                }else{
+                    const { context, DialogActions } = this.props;
+                    var newContext = context;
+                    newContext.ableAutoStart = 'N';
+                    DialogActions.setNewContext(newContext);
+                }
+            })
+        })
+
+    }
+
+    //자동시작
+    rsvrAutoStart = () =>{
+        console.log('rsvrAutoStart called');
+        const {context, entities} = this.props;
+        return fetch('/api/webservice/autoStart',{
+            headers: new Headers({'Content-Type': 'application/json'}),
+            method : 'POST',
+            body : JSON.stringify({context:context})
+        }).then((response) => {
+            return response.text();
+        }).then((res)=>{
+            console.log('Task : ',res);
+        })
     }
 
     //환경설정정보 확인
