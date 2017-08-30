@@ -272,8 +272,8 @@ module.exports = (app) => {
                         }
                     //회의제목 추출
                     }else if(v.pos == 'VCP+ETM' || v.pos == 'ETM'){
-                        if (res[i+1].word == '이름' || res[i+1].word == '제목'){
-                            if (res[i+2].word == '으로'){
+                        if (res[i+1].word == '이름' || res[i+1].word == '제목' || res[i+1].word == '회의' || res[i+1].word == '주제' || res[i+1].word == '명' || res[i+2].word == '이름' || res[i+2].word == '제목' || res[i+2].word == '회의' || res[i+2].word == '주제' || res[i+2].word == '명' ){
+                            if (res[i+2].word == '으로' || res[i+3].word == '으로' || res[i+2].word == '로'){
                                 prevMp = _findPrevMP(res,v.word,'JKB','에');
                                 let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                                 let tmpI = i;

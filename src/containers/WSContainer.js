@@ -24,6 +24,8 @@ class WSContainer extends Component{
                 this.getConferenceRoomInfo(true);
             }else if(this.props.node == '회의실 예약정보 확인'){
                 this.getConferenceRoomRsvrInfo(true);
+            }else if(this.props.node == '내 회의실 예약정보 확인'){
+                this.getConferenceRoomMyRsvrInfo(true);
             }else if(this.props.node == '회의실 예약'){
                 this.confirmConferenceRoomRsvr();
             }else if(this.props.node == '회의실 예약 가능시'){
@@ -188,6 +190,31 @@ class WSContainer extends Component{
                     MrInfoActions.setRsvrInfo({
                         rsvrInfo : res,
                         rsvrInfoShowFlag : showflag
+                    });
+                    resolve();
+                });
+            });
+        });
+    }
+
+    //내 회의실 예약정보 조회
+    getConferenceRoomMyRsvrInfo = (showflag) =>{
+        console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
+        return new Promise((resolve, reject)=>{
+            this.getConferenceRoomInfo(false).then(()=>{
+                const {context, entities} = this.props;
+                return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
+                    headers: new Headers({'Content-Type': 'application/json'}),
+                    method : 'POST',
+                    body : JSON.stringify({context:context, entities:entities})
+                }).then((response) => {
+                    return response.text();
+                }).then((res)=>{
+                    console.log("res ::" + res);
+                    const { MrInfoActions } = this.props;
+                        MrInfoActions.setMyRsvrInfo({
+                        myrsvrInfo : res,
+                        myrsvrInfoShowFlag : showflag
                     });
                     resolve();
                 });
