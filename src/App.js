@@ -9,6 +9,7 @@ import WSContainer from './containers/WSContainer';
 import ConversationContainer from './containers/ConversationContainer';
 import ConferenceRoomContainer from './containers/ConferenceRoomContainer';
 import ConferenceRoomRsvrInfoContainer from './containers/ConferenceRoomRsvrInfoContainer';
+import ConferenceRoomMyRsvrInfoContainer from './containers/ConferenceRoomMyRsvrInfoContainer';
 import ConferenceRoomRsvrContainer from './containers/ConferenceRoomRsvrContainer';
 import ConfigInfoContainer from './containers/ConfigInfoContainer';
 
@@ -78,6 +79,7 @@ class App extends Component {
                                     <WatsonContainer/>
                                     <ConferenceRoomContainer/>
                                     <ConferenceRoomRsvrInfoContainer/>
+                                    <ConferenceRoomMyRsvrInfoContainer/>
                                     <ConferenceRoomRsvrContainer/>
                                     <ConfigInfoContainer/>
                                     <WSContainer/>

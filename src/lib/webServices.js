@@ -64,6 +64,38 @@ module.exports = function(app){
         });
     });
 
+    app.post('/api/webservice/getConferenceRoomMyRsvrInfo', jsonParser, (request, response) => {
+        var dt = new Date();
+        var rsvrDay = dt.toFormat('YYYYMMDD');
+        request.body.entities.forEach((v,i)=>{
+            if (v.entity == 'sys-date'){
+                rsvrDay = v.value.replace(/-/gi,'');
+            }
+        })
+
+        var Service = require('../egss_resv_cr');
+        var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();
+
+        var json = {EMP_ID: process.env.LOGIN_ID, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
+        egssRequest.getConferenceRoomMyRsvrInfoParameter = new Service.Types.getConferenceRoomMyRsvrInfoParameter(json);
+        console.log('parameter_json :: ', JSON.stringify(json));
+
+        egssRequest.request((err, res) => {
+            if (!(err === null || err == 'null')){
+                console.log('ERR : ',err);
+            }else{
+                var result = res.extract().getConferenceRoomMyRsvrInfoReturn;
+                var rsvrInfo = result.RSVR_INFO;
+                if (result.E_RETVAL != 'S'){
+                    console.log('ERR : ',result.E_RETMSG);
+                }else{
+                    console.log(rsvrInfo);
+                }
+                response.send(rsvrInfo);
+            }
+        });
+    });
+
     app.post('/api/webservice/addConferenceRoomRsvr', jsonParser, (request, response) => {
         var rsvrInfo = request.body.rsvrData;
         var entities = request.body.entities;
