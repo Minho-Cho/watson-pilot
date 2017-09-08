@@ -359,11 +359,35 @@ var Common = (function() {
         });
     }
 
+    function getTitle(entities, input){
+        var inputText = input.text
+
+        return new Promise((resolve, reject) => {
+            //형태소 분석
+            fetch('/api/mpAnalysisTitle',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({input:inputText, entities:entities})
+            }).then((response) => {
+                return response.text();
+            }).then((response) => {
+                console.log('morphological analysis result : ',response);
+                var result = JSON.parse(response);
+
+                var title = {
+                    meetingTitle : result.meetingTitle
+                }
+                resolve(title);
+            })
+        });
+    }
+
     return {
       sortJsonArrayByProperty: sortJsonArrayByProperty,
       paddingZero: _paddingZero,
       makeTimeTable: makeTimeTable,
       getTimeInfoAuto: getTimeInfoAuto,
+      getTitle: getTitle,
       getTimeDate: getTimeDate
     };
 }());
