@@ -43,6 +43,15 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
                 this.chgConferenceRoomRsvrTitle();
+            }else if(this.props.node == 'node_6_1504833419739'){
+                this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
+            }else if(this.props.node == 'node_8_1504833707683'){
+              this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
+            }else if(this.props.node == 'node_9_1504833734623'){
+              MrInfoActions.controlShowFlag({
+                myrsvrInfoShowFlag : false
+              });
+               this.cancelConferenceRoom(); // 회의실 취소
             }else if(this.props.node == '회의 자동시작'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
