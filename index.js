@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const webService = require('./src/lib/webServices')(app);
 const conversation = require('./src/lib/conversation')(app);
 const mpAnalysis = require('./src/lib/mpAnalysis')(app);
+const cancelAnalysis = require('./src/lib/cancelAnalysis')(app);
 const common = require('./src/lib/common')(app);
 
 // bundle the code
@@ -20,7 +21,10 @@ const compiler = webpack(webpackConfig);
 dotenv.load({silent: true});
 
 // DB setting
-mongoose.connect(process.env.MONGODB, { useMongoClient: true }); // 1
+var promise = mongoose.connect(process.env.MONGODB, {
+  useMongoClient : true
+});
+
 var db = mongoose.connection;
 db.once("openUri", function() {
     console.log("DB connected");

@@ -359,12 +359,13 @@ var Common = (function() {
         });
     }
 
-    function getTitle(entities, input){
-        var inputText = input.text
+    function getCancelData(entities, input){
+
+        var inputText = input.text;
 
         return new Promise((resolve, reject) => {
             //형태소 분석
-            fetch('/api/mpAnalysisTitle',{
+            fetch('/api/cancelAnalysis',{
                 headers: new Headers({'Content-Type': 'application/json'}),
                 method : 'POST',
                 body : JSON.stringify({input:inputText, entities:entities})
@@ -373,11 +374,17 @@ var Common = (function() {
             }).then((response) => {
                 console.log('morphological analysis result : ',response);
                 var result = JSON.parse(response);
-
-                var title = {
-                    meetingTitle : result.meetingTitle
+                console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");
+                console.log(result);
+                let cancelReturnData = {
+                    meetingTitle : result.meetingTitle,
+                    room : result.room,
+                    apDist : '',
+                    rsvrDay : result.rsvrDay, //20170908
+                    rsvrTFH : result.rsvrTFH,//19
+                    rsvrTFM : result.rsvrTFM,//00
                 }
-                resolve(title);
+                resolve(cancelReturnData);
             })
         });
     }
@@ -387,7 +394,7 @@ var Common = (function() {
       paddingZero: _paddingZero,
       makeTimeTable: makeTimeTable,
       getTimeInfoAuto: getTimeInfoAuto,
-      getTitle: getTitle,
-      getTimeDate: getTimeDate
+      getTimeDate: getTimeDate,
+      getCancelData: getCancelData
     };
 }());

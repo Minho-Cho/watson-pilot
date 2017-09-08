@@ -158,7 +158,7 @@ module.exports = (app) => {
     var meetingTitle = '';
     var meetTime = '';
 
-    app.post('/api/mpAnalysis', jsonParser, (request, response) => {
+    app.post('/api/cancelAnalysis', jsonParser, (request, response) => {
 
         Settings.find({user:process.env.LOGIN_ID}, (e, settingData)=>{
             meetingTitle = "";

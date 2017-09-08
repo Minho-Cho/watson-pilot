@@ -7,11 +7,6 @@ const timeTable = ['0700', '0730', '0800', '0830', '0900', '0930', '1000', '1030
 export default class ConferenceRoomRsvrInfo extends React.Component {
 
     render(){
-		let rsvrDay = '';
-		if (this.props.content != ''){
-			rsvrDay = JSON.parse(this.props.content)[0].RSVR_FR_DD;
-			rsvrDay = rsvrDay.substr(0,4)+' / '+rsvrDay.substr(4,2)+' / '+rsvrDay.substr(6,2);
-		}
         const mapToComponents = (data) => {
             if (data.content == '' || data.content==null || data.content==undefined) return false;
             var rsvrInfo = JSON.parse(data.content);
@@ -91,8 +86,6 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
         return (
             <div className="sect_schLst tbl_sch sect_tml_cell">
 			{ this.props.showflag && (
-				<div>
-				<span className="dateTitle">&lt;&nbsp;{rsvrDay}&nbsp;&gt;</span>
 				<table className="tbl_sch tml" >
 					<colgroup>
                         <col width="200" />
@@ -148,7 +141,6 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
                         {mapToComponents(this.props)}
 					</tbody>
 				</table>
-				</div>
 			)}
             </div>
         );

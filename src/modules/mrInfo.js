@@ -7,6 +7,7 @@ const SET_MYRSVRINFO = 'mrInfo/SET_MYRSVRINFO';
 const CONTROL_SHOW_FLAG = 'mrInfo/CONTROL_SHOW_FLAG';
 const INIT_RSVR_ROOM = 'mrInfo/INIT_RSVR_ROOM';
 const SET_RSVRTIMEINFO = 'mrInfo/SET_RSVRTIMEINFO';
+const SET_RSVRCANCELINFO = 'mrInfo/SET_RSVRCANCELINFO';
 
 export const setRoomInfo = createAction(SET_ROOMINFO);
 export const setRsvrInfo = createAction(SET_RSVRINFO);
@@ -14,12 +15,14 @@ export const setMyRsvrInfo = createAction(SET_MYRSVRINFO);
 export const controlShowFlag = createAction(CONTROL_SHOW_FLAG);
 export const initRsvrRoom = createAction(INIT_RSVR_ROOM);
 export const setRsvrTimeInfo = createAction(SET_RSVRTIMEINFO);
+export const setRsvrCancelInfo = createAction(SET_RSVRCANCELINFO);
 
 const initialState = Map({
     roomInfo : '',
     rsvrInfo : '',
     myrsvrInfo : '',
     rsvrTimeInfo : '',
+    rsvrCancelInfo : '',
     roomInfoShowFlag : false,
     rsvrInfoShowFlag : false,
     myrsvrInfoShowFlag : false,
@@ -43,7 +46,7 @@ export default handleActions({
     },
     [SET_RSVRINFO]:(state, action) => {
         const { rsvrInfo, rsvrInfoShowFlag} = action.payload;
-  
+
         let rsvrCnfmShowFlag = rsvrInfoShowFlag?false:state.get('rsvrCnfmShowFlag');
         let myrsvrInfoShowFlag = rsvrInfoShowFlag?false:state.get('myrsvrInfoShowFlag');
 
@@ -80,5 +83,6 @@ export default handleActions({
                     .set('myrsvrInfoShowFlag', false)
                     .set('rsvrCnfmShowFlag', false)
     },
-    [SET_RSVRTIMEINFO]:(state, action) => state.set('rsvrTimeInfo', action.payload)
+    [SET_RSVRTIMEINFO]:(state, action) => state.set('rsvrTimeInfo', action.payload),
+    [SET_RSVRCANCELINFO]:(state, action) => state.set('rsvrCancelInfo', action.payload)
 }, initialState);
