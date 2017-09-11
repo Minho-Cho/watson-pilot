@@ -35,11 +35,11 @@ const _calTime = function(startTime, startMin, time){
         }
     }else{
         if(Number(endTime) == 30){
-            return '00' + endTime;
-        }else if(endTime < 1000){
-            return '0' + endTime;
+            return '00' + Number(endTime);
+        }else if(Number(endTime) < 1000){
+            return '0' + Number(endTime);
         }else{
-            return '' + endTime;
+            return '' + Number(endTime);
         }
     }
 }
@@ -325,7 +325,7 @@ module.exports = (app) => {
                                 }
                             }
                         }
-                    }else if (v.pos == 'VCP+EC' || v.pos == 'EC'){
+                    }else if (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고')){
                         prevMp = _findPrevMP(res,v.word,'JKB','에');
                         let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                         let tmpI = i;
