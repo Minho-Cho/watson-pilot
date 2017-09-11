@@ -85,4 +85,30 @@ module.exports = (app) => {
             response.send(res);
         });
     });
+
+    app.post('/api/common/updateSettingTitleInfo', jsonParser, (request, response) => {
+        Settings.find({
+            user:process.env.LOGIN_ID
+        }, (err, res)=>{
+            Settings.findByIdAndUpdate(res[0]._id,{
+                title: request.body.meetingTitle
+            }, (err2, res2)=>{
+                res2.title = request.body.meetingTitle;
+                response.send(res2);
+            });
+        });
+    });
+
+    app.post('/api/common/updateSettingTimeInfo', jsonParser, (request, response) => {
+        Settings.find({
+            user:process.env.LOGIN_ID
+        }, (err, res)=>{
+            Settings.findByIdAndUpdate(res[0]._id,{
+                duration: request.body.meetingTime
+            }, (err2, res2)=>{
+                res2.duration = request.body.meetingTime;
+                response.send(res2);
+            });
+        });
+    });
 };

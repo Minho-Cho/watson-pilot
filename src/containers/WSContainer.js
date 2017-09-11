@@ -42,7 +42,7 @@ class WSContainer extends Component{
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
-                this.chgConferenceRoomRsvrTitle();
+                this.chgConferenceRoomRsvrTitle();  //제목변경요청
             }else if(this.props.node == 'node_6_1504833419739'){
                 this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
             }else if(this.props.node == 'node_8_1504833707683'){
@@ -68,6 +68,20 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
                 this.getSettingInfo();
+            }else if(this.props.node[0] == 'node_1_1505106111927'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgDefaultTitle(); //기본 제목변경 요청
+            }else if(this.props.node[0] == 'node_2_1505106166872'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgDefaultTime(); //기본 시간변경 요청
             }else if(this.props.node == '설정정보 생성'){
                 this.makeSettingInfo();
             }else if(this.props.node != ''){
@@ -151,6 +165,56 @@ class WSContainer extends Component{
                     settings : JSON.parse(res)
                 });
             }
+        })
+    }
+
+    //기본 회의제목 변경
+    chgDefaultTitle = () =>{
+        console.log('chgDefaultTitle called');
+        const { entities, context, input} = this.props;
+        var newContext = context;
+        Common.getTitle(entities, input).then((rsvrTitleInfo)=>{
+            console.log('chgDefaultTitle called : ',rsvrTitleInfo);
+
+            return fetch('/api/common/updateSettingTitleInfo',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({meetingTitle:rsvrTitleInfo.meetingTitle})
+            }).then((response) => {
+                return response.text();
+            }).then((res)=>{
+                const { ConfigActions } = this.props;
+                ConfigActions.setSettings({
+                    settings : JSON.parse(res)
+                });
+            })
+        },(err)=>{
+            console.log('chgDefaultTitle called : 제목없음(',err,')');
+        })
+    }
+
+    //기본 회의시간 변경
+    chgDefaultTime = () =>{
+        console.log('chgDefaultTime called');
+        const { entities, context, input} = this.props;
+        var newContext = context;
+        Common.getTime(entities, input).then((rsvrTimeInfo)=>{
+            console.log('chgDefaultTime called : ',rsvrTimeInfo);
+
+            return fetch('/api/common/updateSettingTimeInfo',{
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method : 'POST',
+                body : JSON.stringify({meetingTime:rsvrTimeInfo.meetingTime})
+            }).then((response) => {
+                return response.text();
+            }).then((res)=>{
+                const { ConfigActions } = this.props;
+                ConfigActions.setSettings({
+                    settings : JSON.parse(res)
+                });
+            })
+        },(err)=>{
+            console.log('chgDefaultTime called : 제목없음(',err,')');
         })
     }
 
