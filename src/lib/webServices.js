@@ -203,8 +203,8 @@ module.exports = function(app){
         var task = new cron(startDate, startTime, func);
         response.send(task);
     });
-
-    app.post('/api/webservice/cancelConferenceRoomShowRsvr', jsonParser, (request, response) => {
+	
+	    app.post('/api/webservice/cancelConferenceRoomShowRsvr', jsonParser, (request, response) => {
         console.log("취소할 목록들 뿌려주는 웹서비스");
         console.log("아래 로그 형태소분석기로 받아온 정보");
 
@@ -234,7 +234,6 @@ module.exports = function(app){
                 var result = res.extract().getConferenceRoomMyRsvrInfoReturn;
                 var rsvrInfo= result.RSVR_INFO;
                 var infoArr = [];
-                console.log(rsvrInfo);
                 var count = 0;
                 // 2차로 day와 time정보로 내 예약현황 추출
                 rsvrInfo.forEach((v,i) => {
@@ -265,33 +264,6 @@ module.exports = function(app){
                                             TEL_NO3 : v.TEL_NO3
                                           });
                           }
-                          // else if(rsvrInfoAnalysis.rsvrDay == v.RSVR_FR_DD)
-                          // {
-                          //   console.log("day진입");
-                          //   count++;
-                          //   infoArr.push({FLOR_LOC : v.FLOR_LOC,
-                          //                 MR_REG_NO : v.MR_REG_NO,
-                          //                 MR_NM : v.MR_NM,
-                          //                 MR_REQST_NO : v.MR_REQST_NO,
-                          //                 RSVR_FR_DD : v.RSVR_FR_DD,
-                          //                 RSVR_FR_HH : v.RSVR_FR_HH,
-                          //                 RSVR_FR_MI : v.RSVR_FR_MI,
-                          //                 RSVR_TO_DD : v.RSVR_TO_DD,
-                          //                 RSVR_TO_HH : v.RSVR_TO_HH,
-                          //                 RSVR_TO_MI : v.RSVR_TO_MI,
-                          //                 MEET_TITLE : v.MEET_TITLE,
-                          //                 PROC_STS_CD  : v.PROC_STS_CD,
-                          //                 CNCL_STS_CD : v.CNCL_STS_CD,
-                          //                 BTN_STS_CD : v.BTN_STS_CD,
-                          //                 CNTCT_SYS_NM : v.CNTCT_SYS_NM,
-                          //                 RSVR_ID : v.RSVR_ID,
-                          //                 RSVR_DE : v.RSVR_DE,
-                          //                 TB_PWD : v.TB_PWD,
-                          //                 USE_YN : v.USE_YN,
-                          //                 EMP_NM : v.EMP_NM,
-                          //                 TEL_NO3 : v.TEL_NO3
-                          //               });
-                          // }
                 });
                 if(count == 0)
                 {

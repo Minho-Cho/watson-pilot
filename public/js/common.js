@@ -359,13 +359,12 @@ var Common = (function() {
         });
     }
 
-    function getCancelData(entities, input){
-
-        var inputText = input.text;
+    function getTitle(entities, input){
+        var inputText = input.text
 
         return new Promise((resolve, reject) => {
             //형태소 분석
-            fetch('/api/cancelAnalysis',{
+            fetch('/api/mpAnalysisTitle',{
                 headers: new Headers({'Content-Type': 'application/json'}),
                 method : 'POST',
                 body : JSON.stringify({input:inputText, entities:entities})
@@ -374,27 +373,53 @@ var Common = (function() {
             }).then((response) => {
                 console.log('morphological analysis result : ',response);
                 var result = JSON.parse(response);
-                console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");
-                console.log(result);
-                let cancelReturnData = {
-                    meetingTitle : result.meetingTitle,
-                    room : result.room,
-                    apDist : '',
-                    rsvrDay : result.rsvrDay, //20170908
-                    rsvrTFH : result.rsvrTFH,//19
-                    rsvrTFM : result.rsvrTFM,//00
+
+                var title = {
+                    meetingTitle : result.meetingTitle
                 }
-                resolve(cancelReturnData);
+                resolve(title);
             })
         });
     }
+	
+	function getCancelData(entities, input){
+
+	var inputText = input.text;
+
+	return new Promise((resolve, reject) => {
+		//형태소 분석
+		fetch('/api/cancelAnalysis',{
+			headers: new Headers({'Content-Type': 'application/json'}),
+			method : 'POST',
+			body : JSON.stringify({input:inputText, entities:entities})
+		}).then((response) => {
+			return response.text();
+		}).then((response) => {
+			console.log('morphological analysis result : ',response);
+			var result = JSON.parse(response);
+			console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");console.log("확인#");
+			console.log(result);
+			let cancelReturnData = {
+				meetingTitle : result.meetingTitle,
+				room : result.room,
+				apDist : '',
+				rsvrDay : result.rsvrDay, //20170908
+				rsvrTFH : result.rsvrTFH,//19
+				rsvrTFM : result.rsvrTFM,//00
+			}
+			resolve(cancelReturnData);
+		})
+	});
+    }
+
 
     return {
       sortJsonArrayByProperty: sortJsonArrayByProperty,
       paddingZero: _paddingZero,
       makeTimeTable: makeTimeTable,
       getTimeInfoAuto: getTimeInfoAuto,
+      getTitle: getTitle,
       getTimeDate: getTimeDate,
-      getCancelData: getCancelData
+	  getCancelData: getCancelData
     };
 }());

@@ -24,8 +24,6 @@ class ConversationContainer extends Component{
         console.log('updateReply called');
         var json = JSON.parse(result);
 
-        console.log(json);
-
         var entities = json.entities;
         var temp = json.input.text;
         // entities.map((v,i)=>{

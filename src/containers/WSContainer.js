@@ -19,7 +19,6 @@ class WSContainer extends Component{
         if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
-
             ConfigActions.setShowflag(false);
             if(this.props.node == '회의실 목록 확인'){
                 this.getConferenceRoomInfo(true);
@@ -37,6 +36,13 @@ class WSContainer extends Component{
                 });
             }else if(this.props.node == '회의실 예약진행'){
                 this.addConferenceRoomRsvr();
+            }else if(this.props.node[0] == 'node_1_1504828745338'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgConferenceRoomRsvrTitle();
             }else if(this.props.node == 'node_6_1504833419739'){
                 this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
             }else if(this.props.node == 'node_8_1504833707683'){
@@ -252,7 +258,6 @@ class WSContainer extends Component{
                 newContext.ableRsvr = 'Y';
                 DialogActions.setNewContext(newContext);
                 MrInfoActions.setRsvrTimeInfo(rsvrTimeInfo)
-                return;
             },(err)=>{
                 console.log('confirmConferenceRoomRsvr called : 예약불가(',err,')');
                 newContext.ableRsvr = err;
@@ -260,8 +265,6 @@ class WSContainer extends Component{
                 // DialogActions.sendMessage(true);
             })
         })
-
-        return;
     }
 
     //회의실 예약
@@ -276,10 +279,30 @@ class WSContainer extends Component{
         }).then((response) => {
             return response.text();
         }).then((res)=>{
-            const { DialogActions, MrInfoAction, context } = this.props;
+            const { DialogActions, context } = this.props;
             var newContext = context;
             newContext.successRsvr = 'Y';
             DialogActions.setNewContext(newContext);
+        })
+    }
+
+    //회의실 제목변경
+    chgConferenceRoomRsvrTitle = () =>{
+        console.log('chgConferenceRoomRsvrTitle called');
+        const { DialogActions, MrInfoActions, rsvrTimeInfo, entities, context, input} = this.props;
+        var newContext = context;
+        var newRsvrTimeInfo = rsvrTimeInfo;
+        Common.getTitle(entities, input).then((rsvrTitleInfo)=>{
+            console.log('chgConferenceRoomRsvrTitle called : ',rsvrTitleInfo);
+            newContext.ableRsvr = 'Y';
+            newRsvrTimeInfo.roomTitle = rsvrTitleInfo.meetingTitle;
+            MrInfoActions.setRsvrTimeInfo(newRsvrTimeInfo)
+            DialogActions.setNewContext(newContext);
+        },(err)=>{
+            console.log('chgConferenceRoomRsvrTitle called : 제목없음(',err,')');
+            newContext.ableRsvr = err;
+            DialogActions.setNewContext(newContext);
+            // DialogActions.sendMessage(true);
         })
     }
 
@@ -344,17 +367,17 @@ class WSContainer extends Component{
       });
     }
 
-
     render(){
         return (<div/>);
     }
 }
 
+
 export default connect(
     (state) => ({
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
-        rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
+		rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),

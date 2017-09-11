@@ -21,10 +21,7 @@ const compiler = webpack(webpackConfig);
 dotenv.load({silent: true});
 
 // DB setting
-var promise = mongoose.connect(process.env.MONGODB, {
-  useMongoClient : true
-});
-
+mongoose.connect(process.env.MONGODB, { useMongoClient: true }); // 1
 var db = mongoose.connection;
 db.once("openUri", function() {
     console.log("DB connected");
