@@ -43,6 +43,15 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
                 this.chgConferenceRoomRsvrTitle();
+            }else if(this.props.node == 'node_6_1504833419739'){
+                this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
+            }else if(this.props.node == 'node_8_1504833707683'){
+              this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
+            }else if(this.props.node == 'node_9_1504833734623'){
+              MrInfoActions.controlShowFlag({
+                myrsvrInfoShowFlag : false
+              });
+               this.cancelConferenceRoom(); // 회의실 취소
             }else if(this.props.node == '회의 자동시작'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -297,15 +306,78 @@ class WSContainer extends Component{
         })
     }
 
+    // 형태소 분석기로 회의제목과 회의실 시간 등 추출
+    cancelResearchResponse = () =>{
+          const {context, entities, input, DialogActions, MrInfoActions} = this.props;
+          Common.getCancelData(entities, input).then((rsvrCancelInfo)=>{
+          console.log("rsvrCancelInfo::");
+          console.log(rsvrCancelInfo);
+          console.log("::rsvrCancelInfo");
+          var newContext = context;
+          newContext.cancelRsvr = 'Y';
+          DialogActions.setNewContext(newContext);
+          MrInfoActions.setRsvrCancelInfo(rsvrCancelInfo);
+          },(err)=>{
+               newContext.cancelRsvr = err;
+          })
+    }
+
+
+    // 회의실 취소할 목록 뿌려줌
+    cancelConferenceRoomResponse = () =>{
+      new Promise((resolve, reject)=>{
+          this.getConferenceRoomInfo(false).then(()=>{
+              const {context, entities, MrInfoActions, rsvrCancelInfo } = this.props;
+              return fetch('/api/webservice/cancelConferenceRoomShowRsvr', {
+                  headers: new Headers({'Content-Type': 'application/json'}),
+                  method : 'POST',
+                  body : JSON.stringify({context:context, entities:entities, rsvrData:rsvrCancelInfo})
+              }).then((response) => {
+                  return response.text();
+              }).then((res)=>{
+                  console.log("res ::" + res);
+                  const { MrInfoActions } = this.props;
+                      MrInfoActions.setMyRsvrInfo({
+                      myrsvrInfo : res,
+                      myrsvrInfoShowFlag : true
+                  });
+                  MrInfoActions.setRsvrCancelInfo(res);
+                  resolve();
+              });
+          });
+      });
+
+    }
+
+    //회의실 취소
+    cancelConferenceRoom = () =>{
+      //this.getConferenceRoomRsvrInfo(false);
+      const {context, entities, rsvrCancelInfo, MrInfoActions} = this.props;
+
+      return fetch('/api/webservice/cancelConferenceRoomRsvr', {
+          headers: new Headers({'Content-Type': 'application/json'}),
+          method : 'POST',
+          body : JSON.stringify({context:context, entities:entities, rsvrData:rsvrCancelInfo})
+      }).then((response) => {
+          //const { DialogActions, MrInfoAction, context } = this.props;
+          var newContext = context;
+          newContext.cancelRsvrSuccess  = 'Y';
+          DialogActions.setNewContext(newContext);
+          MrInfoActions.setRsvrCancelInfo();
+      });
+    }
+
     render(){
         return (<div/>);
     }
 }
 
+
 export default connect(
     (state) => ({
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
+		rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),

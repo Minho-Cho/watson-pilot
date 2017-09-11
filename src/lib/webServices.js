@@ -203,4 +203,141 @@ module.exports = function(app){
         var task = new cron(startDate, startTime, func);
         response.send(task);
     });
+	
+	    app.post('/api/webservice/cancelConferenceRoomShowRsvr', jsonParser, (request, response) => {
+        console.log("취소할 목록들 뿌려주는 웹서비스");
+        console.log("아래 로그 형태소분석기로 받아온 정보");
+
+        var rsvrInfoAnalysis = request.body.rsvrData;
+        console.log(rsvrInfoAnalysis);
+
+        var Service = require('../egss_resv_cr');
+        var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();
+
+        // 1차적으로 회의실번호와 회의내용(제목)으로 내 예약현황 추출
+        var json = {EMP_ID: process.env.LOGIN_ID,
+                    MR_GBN:'M',
+                    COMP_ID:'YP',
+                    BLDNG_ID:'ICTSC',
+                    FLOR_LOC:'6',
+                    BTN_STS_CD: 'R',
+                    MR_REG_NO: rsvrInfoAnalysis.room,  // ICTSC1-2
+                    SEARCH_KEYWORD: rsvrInfoAnalysis.meetingTitle  // 회의내용
+        };
+        egssRequest.getConferenceRoomMyRsvrInfoParameter = new Service.Types.getConferenceRoomMyRsvrInfoParameter(json);
+        console.log('parameter_json :: ', JSON.stringify(json));
+
+        egssRequest.request((err, res) => {
+            if (!(err === null || err == 'null')){
+                console.log('ERR : ',err);
+            }else{
+                var result = res.extract().getConferenceRoomMyRsvrInfoReturn;
+                var rsvrInfo= result.RSVR_INFO;
+                var infoArr = [];
+                var count = 0;
+                // 2차로 day와 time정보로 내 예약현황 추출
+                rsvrInfo.forEach((v,i) => {
+                          if(rsvrInfoAnalysis.rsvrTFH == v.RSVR_FR_HH)
+                          {
+                              console.log("Time진입");
+                              count++;
+                              infoArr.push({FLOR_LOC : v.FLOR_LOC,
+                                            MR_REG_NO : v.MR_REG_NO,
+                                            MR_NM : v.MR_NM,
+                                            MR_REQST_NO : v.MR_REQST_NO,
+                                            RSVR_FR_DD : v.RSVR_FR_DD,
+                                            RSVR_FR_HH : v.RSVR_FR_HH,
+                                            RSVR_FR_MI : v.RSVR_FR_MI,
+                                            RSVR_TO_DD : v.RSVR_TO_DD,
+                                            RSVR_TO_HH : v.RSVR_TO_HH,
+                                            RSVR_TO_MI : v.RSVR_TO_MI,
+                                            MEET_TITLE : v.MEET_TITLE,
+                                            PROC_STS_CD  : v.PROC_STS_CD,
+                                            CNCL_STS_CD : v.CNCL_STS_CD,
+                                            BTN_STS_CD : v.BTN_STS_CD,
+                                            CNTCT_SYS_NM : v.CNTCT_SYS_NM,
+                                            RSVR_ID : v.RSVR_ID,
+                                            RSVR_DE : v.RSVR_DE,
+                                            TB_PWD : v.TB_PWD,
+                                            USE_YN : v.USE_YN,
+                                            EMP_NM : v.EMP_NM,
+                                            TEL_NO3 : v.TEL_NO3
+                                          });
+                          }
+                });
+                if(count == 0)
+                {
+                  rsvrInfo.forEach((v,i) => {
+                            infoArr.push({FLOR_LOC : v.FLOR_LOC,
+                                          MR_REG_NO : v.MR_REG_NO,
+                                          MR_NM : v.MR_NM,
+                                          MR_REQST_NO : v.MR_REQST_NO,
+                                          RSVR_FR_DD : v.RSVR_FR_DD,
+                                          RSVR_FR_HH : v.RSVR_FR_HH,
+                                          RSVR_FR_MI : v.RSVR_FR_MI,
+                                          RSVR_TO_DD : v.RSVR_TO_DD,
+                                          RSVR_TO_HH : v.RSVR_TO_HH,
+                                          RSVR_TO_MI : v.RSVR_TO_MI,
+                                          MEET_TITLE : v.MEET_TITLE,
+                                          PROC_STS_CD  : v.PROC_STS_CD,
+                                          CNCL_STS_CD : v.CNCL_STS_CD,
+                                          BTN_STS_CD : v.BTN_STS_CD,
+                                          CNTCT_SYS_NM : v.CNTCT_SYS_NM,
+                                          RSVR_ID : v.RSVR_ID,
+                                          RSVR_DE : v.RSVR_DE,
+                                          TB_PWD : v.TB_PWD,
+                                          USE_YN : v.USE_YN,
+                                          EMP_NM : v.EMP_NM,
+                                          TEL_NO3 : v.TEL_NO3
+                                        });
+                                });
+                }
+
+                console.log("infoArr");
+                console.log(infoArr);
+                console.log("infoArr");
+
+                if (result.E_RETVAL != 'S'){
+                    console.log('ERR : ',result.E_RETMSG);
+                }else{
+                    response.send(infoArr);
+                }
+
+            }
+        });
+    });
+
+
+    app.post('/api/webservice/cancelConferenceRoomRsvr', jsonParser, (request, response) => {
+            console.log("필터된 내 예약정보를 확인해서 리퀘스트 넘버를 받아오고 취소해주는 서비스");
+            var Service = require('../egss_resv_cr');
+            var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();
+            var rsvrCancelInfo = request.body.rsvrData;
+            var reqstNo = '';
+            var reqNumData = JSON.parse(rsvrCancelInfo);
+            reqNumData.map((v, i) => {
+                  reqstNo = v.MR_REQST_NO;
+                  console.log(reqstNo);
+                  var Service = require('../egss_resv_cr');
+                  var egssRequest = new Service.COEaiMngShared.updateConferenceRoomStatus();
+                  var json = {MR_REQST_NO: reqstNo,
+                              BTN_STS_CD: 'C',
+                              TB_PWD: 'CRRS'
+                  }
+                  egssRequest.updateConferenceRoomStatusParameter = new Service.Types.updateConferenceRoomStatusParameter(json);
+
+                  egssRequest.request((err, res) => {
+                      if (!(err === null || err == 'null')){
+                          console.log('ERR : ',err);
+                          //에러처리 추가
+                      }else{
+                          var result = res.extract().updateConferenceRoomStatusReturn;
+                          console.log("취소 결과값 확인")
+                          console.log(result);
+                      }
+                  });
+
+            });
+
+      });
 }
