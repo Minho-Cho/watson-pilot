@@ -87,6 +87,8 @@ class WSContainer extends Component{
                 this.chgDefaultTime(); //기본 시간변경 요청
             }else if(this.props.node == '설정정보 생성'){
                 this.makeSettingInfo();
+            }else if(this.props.node[0].split('_')[2] == '1505201717364'){
+                this.logout();
             }else if(this.props.node != ''){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -124,6 +126,16 @@ class WSContainer extends Component{
                 DialogActions.setNewContext(newContext);
             }
         })
+    }
+
+    //로그아웃처리
+    logout = () =>{
+        console.log('logout called');
+        const { context, DialogActions, ConfigActions } = this.props;
+        ConfigActions.setUserName('');
+        let newContext = context;
+        newContext.userId = '';
+        DialogActions.setNewContext(newContext);
     }
 
     //자동시작 가능여부 확인
