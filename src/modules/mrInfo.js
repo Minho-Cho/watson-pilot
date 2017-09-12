@@ -22,7 +22,7 @@ const initialState = Map({
     rsvrInfo : '',
     myrsvrInfo : '',
     rsvrTimeInfo : '',
-	rsvrCancelInfo : '',
+	  rsvrCancelInfo : '',
     roomInfoShowFlag : false,
     rsvrInfoShowFlag : false,
     myrsvrInfoShowFlag : false,
@@ -46,7 +46,7 @@ export default handleActions({
     },
     [SET_RSVRINFO]:(state, action) => {
         const { rsvrInfo, rsvrInfoShowFlag} = action.payload;
-  
+
         let rsvrCnfmShowFlag = rsvrInfoShowFlag?false:state.get('rsvrCnfmShowFlag');
         let myrsvrInfoShowFlag = rsvrInfoShowFlag?false:state.get('myrsvrInfoShowFlag');
 
