@@ -20,7 +20,7 @@ class WSContainer extends Component{
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
             ConfigActions.setShowflag(false);
-            console.log("==========",this.props.node,"============")
+            // console.log("==========",this.props.node,"============")
             if(this.props.node[0].split('_')[2] == '1505178093805'){
                 this.getUserInfo();
             }if(this.props.node == '회의실 목록 확인' ){
