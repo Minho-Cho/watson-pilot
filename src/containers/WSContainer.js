@@ -54,7 +54,7 @@ class WSContainer extends Component{
                 this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
             }else if(this.props.node[0].split('_')[2] == '1504833707683'){
               this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
-            }else if(this.props.node == 'node_3_1505195154227'){
+            }else if(this.props.node[0].split('_')[2] == '1505195154227'){
               MrInfoActions.controlShowFlag({
                 myrsvrInfoShowFlag : true
               });
@@ -133,6 +133,16 @@ class WSContainer extends Component{
             }
         })
     }
+
+    //로그아웃처리
+      logout = () =>{
+          console.log('logout called');
+          const { context, DialogActions, ConfigActions } = this.props;
+          ConfigActions.setUserName('');
+          let newContext = context;
+          newContext.userId = '';
+          DialogActions.setNewContext(newContext);
+      }
 
     //자동시작 가능여부 확인
     checkAutoStart = () =>{

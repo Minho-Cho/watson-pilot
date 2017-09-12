@@ -411,6 +411,29 @@ var Common = (function() {
               		})
               	});
       }
+	  
+	function getTime(entities, input) {
+        var inputText = input.text
+
+        return new Promise((resolve, reject) => {
+            //형태소 분석
+            fetch('/api/mpAnalysisTime', {
+                headers: new Headers({'Content-Type': 'application/json'}),
+                method: 'POST',
+                body: JSON.stringify({input: inputText, entities: entities})
+            }).then((response) => {
+                return response.text();
+            }).then((response) => {
+                console.log('morphological analysis result : ', response);
+                var result = JSON.parse(response);
+
+                var duration = {
+                    meetingTime: result.meetingTime
+                }
+                resolve(duration);
+            })
+        });
+    }
 
 
     return {
