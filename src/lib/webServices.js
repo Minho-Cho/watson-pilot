@@ -3,6 +3,8 @@ const app = express();
 const bodyParser = require('body-parser')
 const cron = require('./cron');
 
+var RsvrAutos = require("../models/rsvrAutos");
+
 require('date-utils');
 
 module.exports = function(app){
@@ -175,13 +177,14 @@ module.exports = function(app){
         var reqstNo = request.body.context.reqstInfo.reqstNo;
         var startDate = request.body.context.reqstInfo.startDate;
         var startTime = request.body.context.reqstInfo.startTime;
-        var Service = require('../egss_resv_cr');
-        var egssRequest = new Service.COEaiMngShared.updateConferenceRoomStatus();
 
         var json = {MR_REQST_NO: reqstNo,
                     BTN_STS_CD: 'Y',
                     TB_PWD: 'CRRS'
         }
+
+        var Service = require('../egss_resv_cr');
+        var egssRequest = new Service.COEaiMngShared.updateConferenceRoomStatus();
 
         var func = function(){
             egssRequest.updateConferenceRoomStatusParameter = new Service.Types.updateConferenceRoomStatusParameter(json);
@@ -200,7 +203,14 @@ module.exports = function(app){
         };
 
         var task = new cron(startDate, startTime, func);
-        response.send(task);
+        RsvrAutos.create({
+            id: process.env.LOGIN_ID,
+            date: startDate,
+            time: startTime,
+            reqstNo: reqstNo
+        }, (err, res)=>{
+            response.send(task);
+        });
     });
 
 	    app.post('/api/webservice/cancelConferenceRoomShowRsvr', jsonParser, (request, response) => {
