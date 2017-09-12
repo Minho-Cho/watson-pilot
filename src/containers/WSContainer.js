@@ -20,7 +20,9 @@ class WSContainer extends Component{
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
             ConfigActions.setShowflag(false);
-            if(this.props.node == '회의실 목록 확인'){
+            if(this.props.node == 'node_1_1505178093805'){
+                this.getUserInfo();
+            }if(this.props.node == '회의실 목록 확인'){
                 this.getConferenceRoomInfo(true);
             }else if(this.props.node == '회의실 예약정보 확인'){
                 this.getConferenceRoomRsvrInfo(true);
@@ -93,6 +95,34 @@ class WSContainer extends Component{
             }
         }
         return false;
+    }
+
+    //로그인처리
+    getUserInfo = () =>{
+        console.log('getUserInfo called');
+        const { entities, context, input} = this.props;
+        inputText = input.toUpperCase();
+        return fetch('/api/common/getUserInfo',{
+            headers: new Headers({'Content-Type': 'application/json'}),
+            method : 'POST',
+            body : JSON.stringify({inputText:inputText})
+        }).then((response) => {
+            return response.text();
+        }).then((res)=>{
+            if (res == ''){
+                const { context, DialogActions } = this.props;
+                let newContext = context;
+                newContext.userId = 'X';
+                // DialogActions.setNewContext(newContext);
+            }else{
+                const { context, DialogActions, ConfigActions } = this.props;
+                let user = JSON.parse(res);
+                ConfigActions.setUserName(user.name);
+                let newContext = context;
+                newContext.userId = user.id;
+                DialogActions.setNewContext(newContext);
+            }
+        })
     }
 
     //자동시작 가능여부 확인
