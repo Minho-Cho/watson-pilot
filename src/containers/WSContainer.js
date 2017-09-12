@@ -29,6 +29,10 @@ class WSContainer extends Component{
                 this.getConferenceRoomRsvrInfo(true);
             }else if(this.props.node == '내 회의실 예약정보 확인'){
                 this.getConferenceRoomMyRsvrInfo(true);
+            }else if(this.props.node[0].split('_')[2] == '1505181649926'){
+                MrInfoActions.controlShowFlag({
+                    myrsvrInfoShowFlag : true
+                });
             }else if(this.props.node == '회의실 예약'){
                 this.confirmConferenceRoomRsvr();
             }else if(this.props.node == '회의실 예약 가능시'){
@@ -50,6 +54,10 @@ class WSContainer extends Component{
                 this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
             }else if(this.props.node[0].split('_')[2] == '1504833707683'){
               this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
+            }else if(this.props.node[0].split('_')[2] == '1505195154227'){
+                MrInfoActions.controlShowFlag({
+                    myrsvrInfoShowFlag : true
+                });
             }else if(this.props.node[0].split('_')[2] == '1504833734623'){
               MrInfoActions.controlShowFlag({
                 myrsvrInfoShowFlag : false
@@ -325,7 +333,7 @@ class WSContainer extends Component{
         console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
         return new Promise((resolve, reject)=>{
             this.getConferenceRoomInfo(false).then(()=>{
-                const {context, entities} = this.props;
+                const {context, entities, DialogActions, MrInfoActions} = this.props;
                 return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
                     headers: new Headers({'Content-Type': 'application/json'}),
                     method : 'POST',
@@ -334,11 +342,19 @@ class WSContainer extends Component{
                     return response.text();
                 }).then((res)=>{
                     console.log("res ::" + res);
-                    const { MrInfoActions } = this.props;
+                    if(res == '[]'){
+                        var newContext = context;
+                        newContext.myRsvr  = 'N';
+                        DialogActions.setNewContext(newContext);
+                    }else{
+                        var newContext = context;
+                        newContext.myRsvr  = 'Y';
+                        DialogActions.setNewContext(newContext);
                         MrInfoActions.setMyRsvrInfo({
-                        myrsvrInfo : res,
-                        myrsvrInfoShowFlag : showflag
-                    });
+                          myrsvrInfo : res
+                          //, myrsvrInfoShowFlag : showflag
+                        });
+                    }
                     resolve();
                 });
             });
@@ -432,9 +448,9 @@ class WSContainer extends Component{
 
     // 회의실 취소할 목록 뿌려줌
     cancelConferenceRoomResponse = () =>{
-      new Promise((resolve, reject)=>{
+          return new Promise((resolve, reject)=>{
           this.getConferenceRoomInfo(false).then(()=>{
-              const {context, entities, MrInfoActions, rsvrCancelInfo } = this.props;
+              const {context, entities, MrInfoActions, rsvrCancelInfo, DialogActions } = this.props;
               return fetch('/api/webservice/cancelConferenceRoomShowRsvr', {
                   headers: new Headers({'Content-Type': 'application/json'}),
                   method : 'POST',
@@ -443,12 +459,21 @@ class WSContainer extends Component{
                   return response.text();
               }).then((res)=>{
                   console.log("res ::" + res);
-                  const { MrInfoActions } = this.props;
-                      MrInfoActions.setMyRsvrInfo({
+                  if(res == '[]') {
+                    var newContext = context;
+                    newContext.cancelMyRsvr = 'N';
+                    DialogActions.setNewContext(newContext);
+                  }
+                  else {
+                    var newContext = context;
+                    newContext.cancelMyRsvr = 'Y';
+                    DialogActions.setNewContext(newContext);
+                    MrInfoActions.setRsvrCancelInfo(res);
+                    MrInfoActions.setMyRsvrInfo({
                       myrsvrInfo : res,
                       myrsvrInfoShowFlag : true
-                  });
-                  MrInfoActions.setRsvrCancelInfo(res);
+                    });
+                  }
                   resolve();
               });
           });
@@ -459,7 +484,7 @@ class WSContainer extends Component{
     //회의실 취소
     cancelConferenceRoom = () =>{
       //this.getConferenceRoomRsvrInfo(false);
-      const {context, entities, rsvrCancelInfo, MrInfoActions} = this.props;
+      const {context, entities, rsvrCancelInfo, MrInfoActions, DialogActions} = this.props;
 
       return fetch('/api/webservice/cancelConferenceRoomRsvr', {
           headers: new Headers({'Content-Type': 'application/json'}),

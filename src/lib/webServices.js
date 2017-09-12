@@ -91,7 +91,6 @@ module.exports = function(app){
                 if (result.E_RETVAL != 'S'){
                     console.log('ERR : ',result.E_RETMSG);
                 }else{
-                    console.log(rsvrInfo);
                 }
                 response.send(rsvrInfo);
             }
@@ -213,7 +212,7 @@ module.exports = function(app){
             response.send(task);
         });
     });
-	
+
 	    app.post('/api/webservice/cancelConferenceRoomShowRsvr', jsonParser, (request, response) => {
         console.log("취소할 목록들 뿌려주는 웹서비스");
         console.log("아래 로그 형태소분석기로 받아온 정보");
@@ -247,8 +246,8 @@ module.exports = function(app){
                 var count = 0;
                 // 2차로 day와 time정보로 내 예약현황 추출
                 rsvrInfo.forEach((v,i) => {
-                          if(rsvrInfoAnalysis.rsvrTFH == v.RSVR_FR_HH)
-                          {
+                        if(rsvrInfoAnalysis.rsvrTFH == v.RSVR_FR_HH)
+                        {
                               console.log("Time진입");
                               count++;
                               infoArr.push({FLOR_LOC : v.FLOR_LOC,
@@ -310,8 +309,8 @@ module.exports = function(app){
                 if (result.E_RETVAL != 'S'){
                     console.log('ERR : ',result.E_RETMSG);
                 }else{
-                    response.send(infoArr);
                 }
+                response.send(infoArr);
 
             }
         });
