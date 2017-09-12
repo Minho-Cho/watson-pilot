@@ -74,7 +74,7 @@ module.exports = (app) => {
     var urlencodedParser = bodyParser.urlencoded({ extended: true });
 
     app.post('/api/common/getUserInfo', jsonParser, (request, response) => {
-        Users.find({id:request.body.inputText.text}, (err, res)=>{
+        Users.find({id:request.body.inputText}, (err, res)=>{
             response.send(res[0]);
         });
     });

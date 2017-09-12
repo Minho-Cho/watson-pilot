@@ -20,9 +20,10 @@ class WSContainer extends Component{
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
             ConfigActions.setShowflag(false);
-            if(this.props.node == 'node_1_1505178093805'){
+            console.log("==========",this.props.node,"============")
+            if(this.props.node[0].split('_')[2] == '1505178093805'){
                 this.getUserInfo();
-            }if(this.props.node == '회의실 목록 확인'){
+            }if(this.props.node == '회의실 목록 확인' ){
                 this.getConferenceRoomInfo(true);
             }else if(this.props.node == '회의실 예약정보 확인'){
                 this.getConferenceRoomRsvrInfo(true);
@@ -38,18 +39,18 @@ class WSContainer extends Component{
                 });
             }else if(this.props.node == '회의실 예약진행'){
                 this.addConferenceRoomRsvr();
-            }else if(this.props.node[0] == 'node_1_1504828745338'){
+            }else if(this.props.node[0].split('_')[2] == '1504828745338'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
                 this.chgConferenceRoomRsvrTitle();  //제목변경요청
-            }else if(this.props.node == 'node_6_1504833419739'){
+            }else if(this.props.node[0].split('_')[2] == '1504833419739'){
                 this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
-            }else if(this.props.node == 'node_8_1504833707683'){
+            }else if(this.props.node[0].split('_')[2] == '1504833707683'){
               this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
-            }else if(this.props.node == 'node_9_1504833734623'){
+            }else if(this.props.node[0].split('_')[2] == '1504833734623'){
               MrInfoActions.controlShowFlag({
                 myrsvrInfoShowFlag : false
               });
@@ -70,14 +71,14 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
                 this.getSettingInfo();
-            }else if(this.props.node[0] == 'node_1_1505106111927'){
+            }else if(this.props.node[0].split('_')[2] == '1505106111927'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
                 this.chgDefaultTitle(); //기본 제목변경 요청
-            }else if(this.props.node[0] == 'node_2_1505106166872'){
+            }else if(this.props.node[0].split('_')[2] == '1505106166872'){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
@@ -101,7 +102,7 @@ class WSContainer extends Component{
     getUserInfo = () =>{
         console.log('getUserInfo called');
         const { entities, context, input} = this.props;
-        inputText = input.toUpperCase();
+        let inputText = input.text.toUpperCase();
         return fetch('/api/common/getUserInfo',{
             headers: new Headers({'Content-Type': 'application/json'}),
             method : 'POST',
@@ -113,7 +114,7 @@ class WSContainer extends Component{
                 const { context, DialogActions } = this.props;
                 let newContext = context;
                 newContext.userId = 'X';
-                // DialogActions.setNewContext(newContext);
+                DialogActions.setNewContext(newContext);
             }else{
                 const { context, DialogActions, ConfigActions } = this.props;
                 let user = JSON.parse(res);

@@ -158,7 +158,7 @@ function doSoapRequest(url, method, soapAction, data, inputModel, outputModel, n
   if (!coreSettings.useMock) {
     //   console.log('************',soapRequest)
     request.post(soapRequest, function (err, response, body) {
-         console.log('^^^^^^^^^^^^^^^',body)
+        //  console.log('^^^^^^^^^^^^^^^',body)
       handleSoapResponse(method, outputModel, err, body, callback, debug);
     });
   } else {
