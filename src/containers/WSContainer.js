@@ -11,6 +11,8 @@ class WSContainer extends Component{
         // console.log("WS shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
         // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
         // console.log('WSContainer : ',this)
+
+        // localStorage를 이용한 login처리
         const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
         DialogActions.sendMessage(false);
         if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
@@ -18,7 +20,6 @@ class WSContainer extends Component{
             ConfigActions.setUserName(localStorage.userName);
             DialogActions.setNewContext(context);
         }else{
-
             //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
             if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
                 && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
@@ -31,7 +32,7 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
 
-                // console.log("==========",this.props.node,"============")
+                //console.log("==========",this.props.node,"============")
                 if(this.props.node[0].split('_')[2] == '1505178093805'){
                     this.getUserInfo();
                 }if(this.props.node == '회의실 목록 확인' ){
