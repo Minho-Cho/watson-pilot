@@ -461,7 +461,7 @@ module.exports = (app) => {
                     //회의시간 추출
                     if(v.pos == 'SN'){
                         if (res[i+1].word == '분' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
-                            meetingTime = '30';
+                            meetingTime = '0030';
                         }else if (res[i+1].word == '시간' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
                             meetingTime = _paddingZero(v.word)+'00';
                         }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && (res[i+4] == undefined || -1<compString.join().indexOf(res[i+4].word)) ||
@@ -471,7 +471,7 @@ module.exports = (app) => {
                     }else if(v.pos == 'MM'){
                         let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
                         if (res[i+1].word == '분' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
-                            meetingTime = '30';
+                            meetingTime = '0030';
                         }else if (res[i+1].word == '시간' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
                             meetingTime = _paddingZero(t)+'00';
                         }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && (res[i+4] == undefined || -1<compString.join().indexOf(res[i+4].word)) ||
