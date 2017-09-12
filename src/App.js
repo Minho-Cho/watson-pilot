@@ -23,7 +23,7 @@ class App extends Component {
         fetch('/api/common/initCron').then((response) => {
             return response.text();
         }).then((res)=>{
-            
+
         });
     }
 
