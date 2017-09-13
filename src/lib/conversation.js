@@ -50,7 +50,7 @@ module.exports = (app) => {
             console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
 
             //대화내용 DB에 저장
-            if (request.body.context.userId != '' && request.body.context.userId != undefined){
+            if (request.body.context.userId != '' && request.body.context.userId != undefined && request.body.context.userId != 'X'){
                 Convs.create({
                     userId: request.body.context.userId,
                     inputText: request.body.message
