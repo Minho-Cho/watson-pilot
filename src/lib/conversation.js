@@ -46,8 +46,8 @@ module.exports = (app) => {
 
         message(request.body.message, request.body.context).then((res) => {
 
-            //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ request\n', JSON.stringify(request.body, null, 2), '\n----------------------------------------------------------');
-            //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
+            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ request\n', JSON.stringify(request.body, null, 2), '\n----------------------------------------------------------');
+            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
 
             //대화내용 DB에 저장
             if (request.body.context.userId != '' && request.body.context.userId != undefined){

@@ -20,10 +20,12 @@ const dotenv = require('dotenv');
 class App extends Component {
 
     componentWillMount(){
-        fetch('/api/common/initCron').then((response) => {
+        fetch('/api/common/getUserInfo').then((response) => {
             return response.text();
         }).then((res)=>{
-            
+            let user = JSON.parse(res);
+            const { ConfigActions } = this.props;
+            ConfigActions.setUserName(user.name);
         });
     }
 
