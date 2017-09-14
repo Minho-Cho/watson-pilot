@@ -37,11 +37,11 @@ export default class ConfigInfo extends React.Component {
                             <td>{this.props.content.settings.title}</td>
                         </tr>
                         <tr>
-                            <td>기간</td>
+                            <td>회의시간</td>
                             <td>{duration}</td>
                         </tr>
                         <tr>
-                            <td>회의실</td>
+                            <td>선호 회의실</td>
                             <td>{this.props.content.settings.meetingRoom}</td>
                         </tr>
 					</tbody>
