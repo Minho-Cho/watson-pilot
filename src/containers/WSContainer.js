@@ -509,7 +509,7 @@ export default connect(
     (state) => ({
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
-		rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
+		    rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),
