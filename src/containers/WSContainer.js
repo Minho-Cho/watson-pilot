@@ -20,7 +20,7 @@ class WSContainer extends Component{
             && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
             this.props = nextProps;
             ConfigActions.setShowflag(false);
-            console.log("==========",this.props.node,"============")
+            // console.log("==========",this.props.node,"============")
             if(this.props.node[0].split('_')[2] == '1505178093805'){
                 this.getUserInfo();
             }if(this.props.node == '회의실 목록 확인' ){
@@ -55,9 +55,9 @@ class WSContainer extends Component{
             }else if(this.props.node[0].split('_')[2] == '1504833707683'){
               this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
             }else if(this.props.node[0].split('_')[2] == '1505195154227'){
-              MrInfoActions.controlShowFlag({
-                myrsvrInfoShowFlag : true
-              });
+                MrInfoActions.controlShowFlag({
+                    myrsvrInfoShowFlag : true
+                });
             }else if(this.props.node[0].split('_')[2] == '1504833734623'){
               MrInfoActions.controlShowFlag({
                 myrsvrInfoShowFlag : false
@@ -95,6 +95,8 @@ class WSContainer extends Component{
                 this.chgDefaultTime(); //기본 시간변경 요청
             }else if(this.props.node == '설정정보 생성'){
                 this.makeSettingInfo();
+            }else if(this.props.node[0].split('_')[2] == '1505201717364'){
+                this.logout();
             }else if(this.props.node != ''){
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -135,14 +137,14 @@ class WSContainer extends Component{
     }
 
     //로그아웃처리
-      logout = () =>{
-          console.log('logout called');
-          const { context, DialogActions, ConfigActions } = this.props;
-          ConfigActions.setUserName('');
-          let newContext = context;
-          newContext.userId = '';
-          DialogActions.setNewContext(newContext);
-      }
+    logout = () =>{
+        console.log('logout called');
+        const { context, DialogActions, ConfigActions } = this.props;
+        ConfigActions.setUserName('');
+        let newContext = context;
+        newContext.userId = '';
+        DialogActions.setNewContext(newContext);
+    }
 
     //자동시작 가능여부 확인
     checkAutoStart = () =>{
@@ -507,7 +509,7 @@ export default connect(
     (state) => ({
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
-		rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
+		    rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),

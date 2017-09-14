@@ -4,8 +4,6 @@ const bodyParser = require('body-parser')
 const dotenv = require('dotenv');
 const fs = require('fs');
 
-var Settings = require("../models/settings");
-
 const run_cmd = function(cmd, args, callback){
     const { spawn } = require('child_process');
     const child = spawn(cmd, args);
@@ -108,8 +106,11 @@ const _calPrevLength = function(sentence, loc){
     sentence.map((v,i)=>{
         if(i < loc){
             cnt+=v.word.length;
+            console.log(v.word);
+            console.log(v.word.length);
         }
     });
+    console.log('cnt => ' + cnt);
     return cnt;
 }
 
@@ -153,27 +154,21 @@ module.exports = (app) => {
     dotenv.load({silent: true});
 
     var jsonParser = bodyParser.json();
-    var urlencodedParser = bodyParser.urlencoded({ extended: true });
 
-    var meetingTitle = '';
-    var meetTime = '';
+
 
     app.post('/api/cancelAnalysis', jsonParser, (request, response) => {
-
-        Settings.find({user:process.env.LOGIN_ID}, (e, settingData)=>{
-            meetingTitle = "";
-            meetTime = "";
 
             var srcText = request.body.input;
             var srcTextArr = _originalLoc(srcText);
             var entities = request.body.entities;
             let res = [];
 
-            var rsvrDay = _paddingZero(new Date().getFullYear()) + _paddingZero(new Date().getMonth()+1) + _paddingZero(new Date().getDate());
+            var meetingTitle = '';
+            var meetTime = '';
+            var rsvrDay = '';
             var rsvrTFH = '';
             var rsvrTFM = '';
-            var rsvrTTH = '';
-            var rsvrTTM = '';
             var apDist = '';
             var rsvrDayInsertFlag = false;
             var rsvrTimeInsertFlag = false;
@@ -181,7 +176,7 @@ module.exports = (app) => {
             var room = '';
 
             parse(srcText).then((result)=>{
-                // console.log('------start------')
+                 console.log('------start------')
                 for (let i in result){
                     let word = result[i][0];
                     let pos = result[i][1];
@@ -190,17 +185,10 @@ module.exports = (app) => {
                         word : word,
                         pos : pos
                     });
-                    // console.log(word," : ",pos);
+                     console.log(word," : ",pos);
                 }
-                // console.log('------end------\n\n')
+                 console.log('------end------\n\n')
                 var now = _paddingZero(new Date().getHours()) + ':' + _paddingZero(new Date().getMinutes());
-                rsvrTFH = now.substr(0,2);
-                if (now.substr(-2)>='10' && now.substr(-2)<'40'){
-                    rsvrTFM = '30';
-                }else{
-                    rsvrTFM = '00';
-                    rsvrTFH = _paddingZero(Number(rsvrTFH)+1);
-                }
 
                 //날짜,시간,회의실 추출
                 entities.map((v,i)=>{
@@ -229,115 +217,35 @@ module.exports = (app) => {
 
                 var prevMp = {};
 
-                //회의시간/제목 추출
+                //제목 추출
                 res.map((v,i)=>{
-                    //오전/오후일 경우 판단
-                    if(v.word == '오전' && (res[i+1].word == '에' || res[i+2].word == '에')) {
-                        apDist = 'AM';
-                    }else if(v.word == '오후' && (res[i+1].word == '에' || res[i+2].word == '에')) {
-                        apDist = 'PM';
-                    //회의시간 추출
-                    }else if(v.pos == 'SN'){
-                        if (res[i+1].word == '분' && res[i+2].word == '동안'){
-                            meetTime = '30';
-                        }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
-                            meetTime = v.word+'00';
-                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
-                                  res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
-                            meetTime = v.word+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
-                            if (Number(v.word)<9){
-                                rsvrTFH = _paddingZero((Number(v.word)+12));
-                            }else{
-                                rsvrTFH = _paddingZero(v.word);
-                            }
-                            rsvrTFM = '30';
+                    if(v.pos == 'XSN' || v.pos == 'NNG'){
+                        console.log(res[i]);
+                        if(res[i+1].word == '이름' || res[i+1].word == '제목' || res[i+1].word == '명' || res[i+1].word == '타이틀' || res[i+1].word == '주제'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, i+1)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                        }else if(res[i].word == '이름' || res[i].word == '제목' || res[i].word == '명' || res[i].word == '타이틀' || res[i].word == '주제'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, i)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
                         }
-                    }else if(v.pos == 'MM'){
-                        let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
-                        if (res[i+1].word == '분' && res[i+2].word == '동안'){
-                            meetTime = '30';
-                        }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
-                            meetTime = _paddingZero(t)+'00';
-                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
-                                  res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
-                            meetTime = _paddingZero(t)+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
-                            if (t<9){
-                                rsvrTFH = _paddingZero(t+12);
-                            }else{
-                                rsvrTFH = _paddingZero(t);
-                            }
-                            rsvrTFM = '30';
-                        }
-                    //회의제목 추출
-                    }else if(v.pos == 'VCP+ETM' || v.pos == 'ETM'){
 
-                        console.log(res[i+1].word);
-                        console.log(res[i+2].word);
-                        console.log(res[i+3].word);
-                        return;
-
-                        if (res[i+1].word == '이름' || res[i+1].word == '제목' || res[i+1].word == '회의' || res[i+1].word == '주제' || res[i+1].word == '명' || res[i+2].word == '이름' || res[i+2].word == '제목' || res[i+2].word == '회의' || res[i+2].word == '주제' || res[i+2].word == '명' ){
-                            if (res[i+2].word == '으로' || res[i+3].word == '으로' || res[i+2].word == '로'){
-                                prevMp = _findPrevMP(res,v.word,'JKB','에');
-                                let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
-                                let tmpI = i;
-                                if(res[i-1].word == '이' && res[i-1].pos == 'VCP') tmpI--;
-                                if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
-                                    prevMp = _findPrevMP(res,v.word,'JX','부터');
-                                    tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
-                                }
-                                if(_findPrevMP(res,v.word,'NNG','동안').loc > tmpLoc){
-                                    prevMp = _findPrevMP(res,v.word,'NNG','동안');
-                                }
-
-                                if(JSON.stringify(prevMp) == '{}'){
-                                    meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
-                                }else{
-                                    meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
-                                }
-                            }
-                        }
-                    }else if (v.pos == 'VCP+EC' || v.pos == 'EC'){
-                        prevMp = _findPrevMP(res,v.word,'JKB','에');
-                        let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
-                        let tmpI = i;
-                        if(res[i-1].word == '이' && res[i-1].pos == 'VCP') tmpI--;
-                        if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
-                            prevMp = _findPrevMP(res,v.word,'JX','부터');
-                            tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
-                        }
-                        if(_findPrevMP(res,v.word,'NNG','동안').loc > tmpLoc){
-                            prevMp = _findPrevMP(res,v.word,'NNG','동안');
-                        }
-                        if(JSON.stringify(prevMp) == '{}'){
-                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
-                        }else{
-                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
-                        }
                     }
                 })
 
-                //회의시간 셋팅
-                rsvrTTH = _calTime(rsvrTFH, rsvrTFM, meetTime).substr(0,2);
-                rsvrTTM = _calTime(rsvrTFH, rsvrTFM, meetTime).substr(2,2);
+                console.log('rsvrDay    =>   ' + rsvrDay);
+                console.log('meetingTitle    =>   ' + meetingTitle);
 
                 let resp = {
                     meetingTitle : meetingTitle,
                     rsvrDay : rsvrDay,
                     rsvrTFH : rsvrTFH,
                     rsvrTFM : rsvrTFM,
-                    rsvrTTH : rsvrTTH,
-                    rsvrTTM : rsvrTTM,
                     room : room,
                     apDist : apDist
                 }
 
                 response.send(resp)
+
             },(err)=>{
                 console.log('Morphological Analysys Error : ',err);
             });
-        });
     });
 };
