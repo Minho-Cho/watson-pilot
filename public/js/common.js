@@ -468,8 +468,8 @@ var Common = (function() {
               			resolve(cancelReturnData);
               		})
               	});
-    }	  
-	
+    }
+
     function getTime(entities, input) {
         var inputText = input.text
 
