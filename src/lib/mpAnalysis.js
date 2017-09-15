@@ -35,11 +35,11 @@ const _calTime = function(startTime, startMin, time){
         }
     }else{
         if(Number(endTime) == 30){
-            return '00' + endTime;
-        }else if(endTime < 1000){
-            return '0' + endTime;
+            return '00' + Number(endTime);
+        }else if(Number(endTime) < 1000){
+            return '0' + Number(endTime);
         }else{
-            return '' + endTime;
+            return '' + Number(endTime);
         }
     }
 }
@@ -88,12 +88,42 @@ const _findPrevMP = function(sentence, word, mp, w){
     return result;
 }
 
+const _findFirstMP = function(sentence, word, mp, w){
+    let idx = sentence.findIndex((item)=>{
+        return item.word === word;
+    });
+    let result = {};
+    for (let i=0 ; i<idx ; i++){
+        if(sentence[i].pos == mp && (w == undefined || sentence[i].word == w)){
+            result = sentence[i];
+            result.loc = i;
+            break;
+        }
+    }
+    return result;
+}
+
 const _findNextMP = function(sentence, word, mp){
     let idx = sentence.findIndex((item)=>{
         return item.word === word;
     });
     let result = {};
     for (let i=idx+1 ; i<sentence.length ; i++){
+        if(sentence[i].pos == mp){
+            result = sentence[i];
+            result.loc = i;
+            break;
+        }
+    }
+    return result;
+}
+
+const _findLastMP = function(sentence, word, mp){
+    let idx = sentence.findIndex((item)=>{
+        return item.word === word;
+    });
+    let result = {};
+    for (let i=sentence.length-1 ; i>=idx ; i--){
         if(sentence[i].pos == mp){
             result = sentence[i];
             result.loc = i;
@@ -195,7 +225,9 @@ module.exports = (app) => {
                 // console.log('------end------\n\n')
                 var now = _paddingZero(new Date().getHours()) + ':' + _paddingZero(new Date().getMinutes());
                 rsvrTFH = now.substr(0,2);
-                if (now.substr(-2)>='10' && now.substr(-2)<'40'){
+                if (now.substr(-2)<'10'){
+                    rsvrTFM = '00';
+                }else if (now.substr(-2)>='10' && now.substr(-2)<'40'){
                     rsvrTFM = '30';
                 }else{
                     rsvrTFM = '00';
@@ -210,7 +242,7 @@ module.exports = (app) => {
                             tmpLocation  = v.location[0]+':'+v.location[1];
                             rsvrDayInsertFlag = true;
                         }
-                    }else if(v.entity == 'sys-time'){
+                    }else if(v.entity == 'sys-time' && Number(v.value.split(':')[0]) > 0){
                         if (!rsvrTimeInsertFlag){
                             if (v.location[0]+':'+v.location[1] != tmpLocation){
                                 if(Number(v.value.split(':')[0]) < 9 && v.value.split(':')[0]+':'+v.value.split(':')[1] < now){
@@ -293,7 +325,7 @@ module.exports = (app) => {
                                 }
                             }
                         }
-                    }else if (v.pos == 'VCP+EC' || v.pos == 'EC'){
+                    }else if (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고')){
                         prevMp = _findPrevMP(res,v.word,'JKB','에');
                         let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                         let tmpI = i;
@@ -330,7 +362,132 @@ module.exports = (app) => {
 
                 response.send(resp)
             },(err)=>{
-                console.log('Morphological Analysys Error : ',err);
+                console.log('(mpAnalysis)Morphological Analysys Error : ',err);
+            });
+        });
+    });
+
+    app.post('/api/mpAnalysisTitle', jsonParser, (request, response) => {
+        Settings.find({user:process.env.LOGIN_ID}, (e, settingData)=>{
+            var meetingTitle = settingData[0].title;
+
+            var srcText = request.body.input;
+            var srcTextArr = _originalLoc(srcText);
+            let res = [];
+
+            parse(srcText).then((result)=>{
+                // console.log('------start------')
+                for (let i in result){
+                    let word = result[i][0];
+                    let pos = result[i][1];
+                    if(word == 'EOS') continue;
+                    res.push({
+                        word : word,
+                        pos : pos
+                    });
+                    // console.log(word," : ",pos);
+                }
+
+                var firstMp = {};
+
+                //회의제목 추출
+                res.map((v,i)=>{
+                    if (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고')){
+                        firstMp = _findFirstMP(res,v.word,'JKO');
+
+                        let tmpI = i;
+                        if(res[i-1].word == '이' && res[i-1].pos == 'VCP') tmpI--;
+                        if(res[i+1].word == '회의' || res[i+1].word == '제목' || res[i+1].word == '이름' || res[i+1].word == '주제'){
+                            firstMp = {};
+                        }
+                        if(JSON.stringify(firstMp) == '{}'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                        }else{
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, firstMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, firstMp.loc+1)].loc);
+                        }
+                    }else if ((v.pos == 'JKB' && v.word == '으로') || (v.pos == 'JKB' && v.word == '로')){
+                        firstMp = _findFirstMP(res,v.word,'JKO');
+
+                        let tmpI = i;
+                        if(res[i-1].word == '제목' || res[i-1].word == '주제' || res[i-1].word == '이름' || res[i-1].word == '명') tmpI--;
+                        if(res[i-2].word == '라는') tmpI--
+                        if(res[i-3].word == '이' && res[i-3].pos == 'VCP') tmpI--;
+                        if(res[i+1].word == '회의' || res[i+1].word == '제목' || res[i+1].word == '이름' || res[i+1].word == '주제'){
+                            firstMp = {};
+                        }
+                        if(JSON.stringify(firstMp) == '{}'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                        }else{
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, firstMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, firstMp.loc+1)].loc);
+                        }
+                    }
+                })
+
+                let resp = {
+                    meetingTitle : meetingTitle
+                }
+
+                response.send(resp)
+            },(err)=>{
+                console.log('(mpAnalysisTitle)Morphological Analysys Error : ',err);
+            });
+        });
+    });
+
+    app.post('/api/mpAnalysisTime', jsonParser, (request, response) => {
+        Settings.find({user:process.env.LOGIN_ID}, (e, settingData)=>{
+            var meetingTime = settingData[0].duration;
+
+            var srcText = request.body.input;
+            let res = [];
+
+            parse(srcText).then((result)=>{
+                // console.log('------start------')
+                for (let i in result){
+                    let word = result[i][0];
+                    let pos = result[i][1];
+                    if(word == 'EOS') continue;
+                    res.push({
+                        word : word,
+                        pos : pos
+                    });
+                    // console.log(word," : ",pos);
+                }
+
+                let compString = ['으로','동안','이','을'];
+
+                //회의시간 추출
+                res.map((v,i)=>{
+                    //회의시간 추출
+                    if(v.pos == 'SN'){
+                        if (res[i+1].word == '분' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
+                            meetingTime = '0030';
+                        }else if (res[i+1].word == '시간' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
+                            meetingTime = _paddingZero(v.word)+'00';
+                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && (res[i+4] == undefined || -1<compString.join().indexOf(res[i+4].word)) ||
+                                  res[i+1].word == '시간' && res[i+2].word == '반' && (res[i+3] == undefined || -1<compString.join().indexOf(res[i+3].word))){
+                            meetingTime = _paddingZero(v.word)+'30';
+                        }
+                    }else if(v.pos == 'MM'){
+                        let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
+                        if (res[i+1].word == '분' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
+                            meetingTime = '0030';
+                        }else if (res[i+1].word == '시간' && (res[i+2] == undefined || -1<compString.join().indexOf(res[i+2].word))){
+                            meetingTime = _paddingZero(t)+'00';
+                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && (res[i+4] == undefined || -1<compString.join().indexOf(res[i+4].word)) ||
+                                  res[i+1].word == '시간' && res[i+2].word == '반' && (res[i+3] == undefined || -1<compString.join().indexOf(res[i+3].word))){
+                            meetingTime = _paddingZero(t)+'30';
+                        }
+                    }
+                })
+
+                let resp = {
+                    meetingTime : meetingTime
+                }
+
+                response.send(resp)
+            },(err)=>{
+                console.log('(mpAnalysisTime)Morphological Analysys Error : ',err);
             });
         });
     });

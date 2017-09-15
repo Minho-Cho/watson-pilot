@@ -6,6 +6,8 @@ const watson = require('watson-developer-cloud');
 
 var ConversationV1 = require('watson-developer-cloud/conversation/v1');
 
+var Convs = require("../models/conversations");
+
 const message = function(text, context) {
     //timezone이 없을경우 DMT로 설정됨
     context.timezone = "Asia/Seoul";
@@ -44,8 +46,20 @@ module.exports = (app) => {
 
         message(request.body.message, request.body.context).then((res) => {
 
-            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ request\n', JSON.stringify(request.body, null, 2), '\n----------------------------------------------------------');
-            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
+            //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ request\n', JSON.stringify(request.body, null, 2), '\n----------------------------------------------------------');
+            //console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response\n', JSON.stringify(res, null, 2), '\n----------------------------------------------------------');
+
+            //대화내용 DB에 저장
+            if (request.body.context.userId != '' && request.body.context.userId != undefined && request.body.context.userId != 'X'){
+                Convs.create({
+                    userId: request.body.context.userId,
+                    inputText: request.body.message
+                }, (err, res)=>{
+                    if(err){
+                        console.log('ERROR occurs while inserting convs to DB')
+                    }
+                });
+            }
 
             response.send(res)
         });
