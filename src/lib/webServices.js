@@ -34,6 +34,7 @@ module.exports = function(app){
     });
 
     app.post('/api/webservice/getConferenceRoomRsvrInfo', jsonParser, (request, response) => {
+
         var dt = new Date();
         var rsvrDay = dt.toFormat('YYYYMMDD');
         request.body.entities.forEach((v,i)=>{
@@ -67,11 +68,14 @@ module.exports = function(app){
     app.post('/api/webservice/getConferenceRoomMyRsvrInfo', jsonParser, (request, response) => {
         var dt = new Date();
         var rsvrDay = dt.toFormat('YYYYMMDD');
+
         request.body.entities.forEach((v,i)=>{
             if (v.entity == 'sys-date'){
                 rsvrDay = v.value.replace(/-/gi,'');
             }
         })
+
+
 
         var Service = require('../egss_resv_cr');
         var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();

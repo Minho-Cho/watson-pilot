@@ -200,8 +200,12 @@ class WSContainer extends Component{
     //내 회의실 예약정보 조회
     getConferenceRoomMyRsvrInfo = (showflag) =>{
         console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
-        return new Promise((resolve, reject)=>{
-            this.getConferenceRoomInfo(false).then(()=>{
+
+
+
+//        return new Promise((resolve, reject)=>{
+//            this.getConferenceRoomInfo(false).then(()=>{
+
                 const {context, entities} = this.props;
                 return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
                     headers: new Headers({'Content-Type': 'application/json'}),
@@ -216,10 +220,11 @@ class WSContainer extends Component{
                         myrsvrInfo : res,
                         myrsvrInfoShowFlag : showflag
                     });
-                    resolve();
+//                    resolve();
                 });
-            });
-        });
+
+//            });
+//        });
     }
 
     //회의실 예약가능 판단
