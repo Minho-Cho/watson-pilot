@@ -646,6 +646,8 @@ module.exports = (app) => {
                     }
                 })
 
+                /*내가, 나의 -> 기존 로그인된 ID, name을 가지고 db에서 찾아서 그것으로 조회. 만들기*/
+
                 Users.find({name:userName}, (e, userData)=>{
                     var userId = userData[0].id;
                     var userName = userData[0].name;

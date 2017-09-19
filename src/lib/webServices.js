@@ -94,8 +94,8 @@ module.exports = function(app){
                 if (result.E_RETVAL != 'S'){
                     console.log('ERR : ',result.E_RETMSG);
                 }else{
+                    response.send(rsvrInfo);
                 }
-                response.send(rsvrInfo);
             }
         });
     });
