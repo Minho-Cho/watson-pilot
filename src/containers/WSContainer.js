@@ -14,12 +14,12 @@ class WSContainer extends Component{
 
         // localStorage를 이용한 login처리
         const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
-        DialogActions.sendMessage(false);
-        if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
-            context.userId = localStorage.userId;
-            ConfigActions.setUserName(localStorage.userName);
-            DialogActions.setNewContext(context);
-        }else{
+//        DialogActions.sendMessage(false);
+//        if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
+//            context.userId = localStorage.userId;
+//            ConfigActions.setUserName(localStorage.userName);
+//            DialogActions.setNewContext(context);
+//        }else{
             //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
             if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
                 && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
@@ -32,7 +32,8 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
 
-                //console.log("==========",this.props.node,"============")
+                console.log("==========",this.props.node,"============")
+//                console.log("@@@@@localStorage.userId@@@@@ :: " + localstorage.userId);
                 if(this.props.node[0].split('_')[2] == '1505178093805'){
                     this.getUserInfo();
                 }if(this.props.node == '회의실 목록 확인' ){
@@ -88,7 +89,7 @@ class WSContainer extends Component{
 
                 }
             }
-        }
+//        }
         return false;
 
     }
@@ -320,38 +321,57 @@ class WSContainer extends Component{
     //내 회의실 예약정보 조회
     getConferenceRoomMyRsvrInfo = (showflag) =>{
         console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
+        const {input, context, ConfigActions} = this.props;
 
-        return new Promise((resolve, reject)=>{
-            this.getConferenceRoomInfo(false).then(()=>{
-                const {context, entities, DialogActions, MrInfoActions} = this.props;
-                return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
-                    headers: new Headers({'Content-Type': 'application/json'}),
-                    method : 'POST',
-                    body : JSON.stringify({context:context, entities:entities})
-                }).then((response) => {
-                    return response.text();
-                }).then((res)=>{
-                    console.log("res ::" + res);
-                    if(res == '[]'){
-                        var newContext = context;
-                        newContext.myRsvr  = 'N';
-                        DialogActions.setNewContext(newContext);
-                    }else{
-                        var newContext = context;
-                        newContext.myRsvr  = 'Y';
-                        DialogActions.setNewContext(newContext);
-                        MrInfoActions.setMyRsvrInfo({
+        Common.getUser(input).then((res)=>{
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Successed (MyRsvrInfoUser: ' + res.userId + ')');
+            ConfigActions.setMyRsvrUser({
+                userId : res.userId,
+                userName : res.userName
+            });
+        },(err)=>{
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Faild (MyRsvrInfoUser: ' + res + ')');
+        }).then(()=>{
 
-                          myrsvrInfo : res
-                          //, myrsvrInfoShowFlag : showflag
-                        });
-                    }
-                    resolve();
+          console.log('this.props.userId: ' + this.props.userId + ')');
 
-                });
+          return new Promise((resolve, reject)=>{
+              this.getConferenceRoomInfo(false).then(()=>{
+                  const {context, entities, userId, DialogActions, MrInfoActions} = this.props;
+                  return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
+                      headers: new Headers({'Content-Type': 'application/json'}),
+                      method : 'POST',
+                      body : JSON.stringify({context:context, entities:entities, userId:userId})
+                  }).then((response) => {
+                      return response.text();
+                  }).then((res)=>{
+                      console.log("res ::" + res);
+                      if(res == '[]'){
+                          var newContext = context;
+                          newContext.myRsvr  = 'N';
+                          DialogActions.setNewContext(newContext);
+                      }else{
+                          var newContext = context;
+                          newContext.myRsvr  = 'Y';
+                          DialogActions.setNewContext(newContext);
+                          MrInfoActions.setMyRsvrInfo({
 
-//            });
-//        });
+                            myrsvrInfo : res
+                            //, myrsvrInfoShowFlag : showflag
+                          });
+                      }
+                      resolve();
+
+                  });
+
+              });
+          });
+
+
+
+
+
+        })
     }
 
     //회의실 예약가능 판단
@@ -503,6 +523,8 @@ export default connect(
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
 		    rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
+        userId : state.config.get('userId'),
+        userName : state.config.get('userName'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),

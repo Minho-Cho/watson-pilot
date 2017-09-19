@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 
 var Settings = require("../models/settings");
+var Users = require("../models/users");
 
 const run_cmd = function(cmd, args, callback){
     const { spawn } = require('child_process');
@@ -491,4 +492,63 @@ module.exports = (app) => {
             });
         });
     });
+
+    app.post('/api/mpAnalysisUser', jsonParser, (request, response) => {
+
+            var srcText = request.body.input;
+            let res = [];
+            let user = '';
+
+            parse(srcText).then((result)=>{
+                // console.log('------start------')
+                for (let i in result){
+                    let word = result[i][0];
+                    let pos = result[i][1];
+                    if(word == 'EOS') continue;
+                    res.push({
+                        word : word,
+                        pos : pos
+                    });
+                    // console.log(word," : ",pos);
+                }
+
+                //UserName추출
+                res.map((v,i)=>{
+                    if(v.pos == 'JKS'){
+                        if(res[i-1].word != '선임' && res[i-1].word != '수석' && res[i-1].word != '책임' && res[i-1].word != '이사'){
+                            if(res[i-1].word.length < 3){
+                               userName = res[i-2].word + res[i-1].word ;  // 육민 + 형 + 이,
+                               console.log("userName : " + userName);
+                            }else{
+                               userName = res[i-1].word ;                  // 조기수 + 가, 조민호 + 가
+                               console.log("userName : " + userName);
+                            }
+                        }else{
+                            if(res[i-2].word.length < 3){
+                                userName = res[i-3].word + res[i-2].word ;  // 육민 + 형 + 선임 + 이,
+                                console.log("userName : " + userName);
+                            }else{
+                                userName = res[i-2].word ;                  // 조민호 + 선임 + 이, 조기수 + 수석 + 이
+                                console.log("userName : " + userName);
+                            }
+                        }
+                    }
+                })
+
+                Users.find({name:userName}, (e, userData)=>{
+                    var userId = userData[0].id;
+                    var userName = userData[0].name;
+
+                    let resp = {
+                        userId : userId, userName : userName
+                    }
+                    response.send(resp)
+                },(err)=>{
+                console.log('(mpAnalysisUser)Morphological Analysys Error : ',err);
+            });
+
+        });
+
+    });
+
 };

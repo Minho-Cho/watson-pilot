@@ -77,12 +77,11 @@ module.exports = function(app){
             }
         })
 
-
-
         var Service = require('../egss_resv_cr');
         var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();
 
-        var json = {EMP_ID: process.env.LOGIN_ID, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
+//        var json = {EMP_ID: process.env.LOGIN_ID, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
+        var json = {EMP_ID: request.body.userId, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
         egssRequest.getConferenceRoomMyRsvrInfoParameter = new Service.Types.getConferenceRoomMyRsvrInfoParameter(json);
         console.log('parameter_json :: ', JSON.stringify(json));
 

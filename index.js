@@ -7,11 +7,11 @@ const dotenv = require('dotenv');
 const webService = require('./src/lib/webServices')(app);
 const conversation = require('./src/lib/conversation')(app);
 const mpAnalysis = require('./src/lib/mpAnalysis')(app);
-<<<<<<< HEAD
+
 const msAnalysis = require('./src/lib/msAnalysis')(app);
-=======
+
 const cancelAnalysis = require('./src/lib/cancelAnalysis')(app);
->>>>>>> upstream/master
+
 const common = require('./src/lib/common')(app);
 
 // bundle the code
