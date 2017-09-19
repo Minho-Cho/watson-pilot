@@ -23,7 +23,7 @@ class App extends Component {
         fetch('/api/common/initCron').then((response) => {
             return response.text();
         }).then((res)=>{
-            
+
         });
     }
 
@@ -34,7 +34,8 @@ class App extends Component {
                 <div className={styles.header}>
                     <div className={styles.wrap}>
                         <div className={styles.logo}>
-                            <a href="index.html"><span>Watson</span><br/><span>Pilot</span></a>
+                            <img src="/images/logo.png" style={{width:"22px",height:"30px", top:"5px",position:"relative",left:"-5px"}}/>
+                            <a href="index.html"><span>AIBRIL X Hi-Tech</span></a>
                         </div>
                         <div className={styles.navIcon}>
                             <a href="#" id="activator"><span> </span> </a>
@@ -58,22 +59,21 @@ class App extends Component {
                         <div className={styles.top_searchbar}>
                             <ClientContainer/>
                         </div>
-                        <div className={styles.userinfo}>
-                            <div className={styles.user}>
-                                <ul>
-                                    <li><a href="#"><img src="images/user-pic.png" title="user-name"/><span>{this.props.userName} 님</span></a></li>
-                                </ul>
-                            </div>
-                        </div>
                         <div className={styles.clear}></div>
                     </div>
                 </div>
-
+                <div className={styles.userinfo}>
+                    <div className={styles.user}>
+                        <ul>
+                            <li><a href="#"><img src="images/user-pic.png" title="user-name"/><span>{this.props.userName} 님</span></a></li>
+                        </ul>
+                    </div>
+                </div>
                 <div className={styles.content}>
                     <div className={styles.wrap}>
                         <div id="main" role="main" >
                             <ul id="tiles">
-                                <li style={{position:'relative',top:'90px',left:'0px',width:'calc(100%-40px)'}}>
+                                <li style={{position:'absolute',top:'450px',left:'400px'}}>
                                     <WatsonContainer/>
                                     <ConferenceRoomContainer/>
                                     <ConferenceRoomRsvrInfoContainer/>

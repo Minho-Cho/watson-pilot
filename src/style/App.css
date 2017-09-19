@@ -91,11 +91,10 @@ img {
 }
 
 .header {
-    background: url("/images/border.png") repeat-x 0px 0px #FFF;
-    padding: 1.5em 0 1.2em;
-    border-bottom: 1px solid rgba(214, 213, 212, 0.64);
+    padding: 20.5em 0 2.2em;
     position: fixed;
-    width: 100%;
+    width: 70%;
+    margin-left: 20em;
     top: 0;
     z-index: 999;
 }
@@ -106,7 +105,12 @@ img {
 }
 
 .logo {
-    float: left;
+  color: #363636;
+  font-size: 1.875em;
+  font-weight: bold;
+  text-align: center;
+  width: calc(100% - 200px);
+  position: relative;
 }
 
 .logo img {
@@ -254,6 +258,7 @@ a.boxclose {
 
 .userinfo {
     float: right;
+    padding-right: 50px;
     margin-top: 0.3em;
 }
 
@@ -288,8 +293,6 @@ a.boxclose {
 }
 
 .content .container {
-    border-bottom: 1px solid #C5C5C5;
-    margin-top: 0.55em;
     padding: 0.58em 1em;
     outline: none;
     -webkit-border-radius: 0.3em;
@@ -297,7 +300,9 @@ a.boxclose {
     font-family: 'Malgun Gothic', sans-serif;
     font-size: 14px;
     color: #777;
-    position: relative;
+    width: 500px;
+    position: absolute;
+    top: -30px;
 }
 
 .dateTitle {
