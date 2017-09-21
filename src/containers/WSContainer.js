@@ -62,6 +62,9 @@ class WSContainer extends Component{
               MrInfoActions.controlShowFlag({
                 myrsvrInfoShowFlag : false
               });
+              MrInfoActions.setGridFlag({
+                  setGridFlag : false
+              });
                this.cancelConferenceRoom(); // 회의실 취소
             }else if(this.props.node == '회의 자동시작'){
                 MrInfoActions.controlShowFlag({
@@ -102,6 +105,9 @@ class WSContainer extends Component{
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
+                });
+                MrInfoActions.setGridFlag({
+                    setGridFlag : false
                 });
             }
         }

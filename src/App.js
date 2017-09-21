@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as configActions from './modules/config';
 
+
 import WatsonContainer from './containers/WatsonContainer';
 import ClientContainer from './containers/ClientContainer';
 import WSContainer from './containers/WSContainer';
@@ -28,10 +29,20 @@ class App extends Component {
     }
 
     render(){
+      var answerStyle;
+      var topStyleFlag;
+
+      if(this.props.gridFlag == true){
+          answerStyle = {position:'absolute',top:'290px',left:'410px'};
+          topStyleFlag = true;
+      }else{
+          answerStyle = {position:'absolute',top:'450px',left:'410px'};
+          topStyleFlag = false;
+      }
 
         return (
             <div>
-                <div className={styles.header}>
+                <div className = {topStyleFlag==true?styles.headert:styles.headerb}>
                     <div className={styles.wrap}>
                         <div className={styles.logo}>
                             <img src="/images/logo.png" style={{width:"22px",height:"30px", top:"5px",position:"relative",left:"-5px"}}/>
@@ -73,7 +84,7 @@ class App extends Component {
                     <div className={styles.wrap}>
                         <div id="main" role="main" >
                             <ul id="tiles">
-                                <li style={{position:'absolute',top:'450px',left:'400px'}}>
+                            <li style={answerStyle}>
                                     <WatsonContainer/>
                                     <ConferenceRoomContainer/>
                                     <ConferenceRoomRsvrInfoContainer/>
@@ -94,6 +105,11 @@ class App extends Component {
 
 export default connect(
     (state) => ({
+        roomInfoShowFlag : state.mrInfo.get('roomInfoShowFlag'),
+        rsvrInfoShowFlag : state.mrInfo.get('rsvrInfoShowFlag'),
+        myrsvrInfoShowFlag : state.mrInfo.get('myrsvrInfoShowFlag'),
+        rsvrCnfmShowFlag : state.mrInfo.get('rsvrCnfmShowFlag'),
+        gridFlag : state.mrInfo.get('gridFlag'),
         userName:state.config.get('userName')
     }),
     (dispatch) => ({
