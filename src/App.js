@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as configActions from './modules/config';
 
+
 import WatsonContainer from './containers/WatsonContainer';
 import ClientContainer from './containers/ClientContainer';
 import WSContainer from './containers/WSContainer';
@@ -16,7 +17,7 @@ import ConfigInfoContainer from './containers/ConfigInfoContainer';
 import styles from './style/App.css';
 
 const dotenv = require('dotenv');
-
+ 
 class App extends Component {
 
     componentWillMount(){
@@ -28,13 +29,24 @@ class App extends Component {
     }
 
     render(){
+      var answerStyle;
+      var topStyleFlag;
+
+      if(this.props.gridFlag == true){
+          answerStyle = {position:'absolute',top:'290px',left:'410px'};
+          topStyleFlag = true;
+      }else{
+          answerStyle = {position:'absolute',top:'450px',left:'410px'};
+          topStyleFlag = false;
+      }
 
         return (
             <div>
-                <div className={styles.header}>
+                <div className = {topStyleFlag==true?styles.headert:styles.headerb}>
                     <div className={styles.wrap}>
                         <div className={styles.logo}>
-                            <a href="index.html"><span>Watson</span><br/><span>Pilot</span></a>
+                            <img src="/images/logo.png" style={{width:"22px",height:"30px", top:"5px",position:"relative",left:"-5px"}}/>
+                            <a href="index.html"><span>AIBRIL X Hi-Tech</span></a>
                         </div>
                         <div className={styles.navIcon}>
                             <a href="#" id="activator"><span> </span> </a>
@@ -58,22 +70,21 @@ class App extends Component {
                         <div className={styles.top_searchbar}>
                             <ClientContainer/>
                         </div>
-                        <div className={styles.userinfo}>
-                            <div className={styles.user}>
-                                <ul>
-                                    <li><a href="#"><img src="images/user-pic.png" title="user-name"/><span>{this.props.userName} 님</span></a></li>
-                                </ul>
-                            </div>
-                        </div>
                         <div className={styles.clear}></div>
                     </div>
                 </div>
-
+                <div className={styles.userinfo}>
+                    <div className={styles.user}>
+                        <ul>
+                            <li><a href="#"><img src="images/user-pic.png" title="user-name"/><span>{this.props.userName} 님</span></a></li>
+                        </ul>
+                    </div>
+                </div>
                 <div className={styles.content}>
                     <div className={styles.wrap}>
                         <div id="main" role="main" >
                             <ul id="tiles">
-                                <li style={{position:'relative',top:'90px',left:'0px',width:'calc(100%-40px)'}}>
+                            <li style={answerStyle}>
                                     <WatsonContainer/>
                                     <ConferenceRoomContainer/>
                                     <ConferenceRoomRsvrInfoContainer/>
@@ -94,6 +105,11 @@ class App extends Component {
 
 export default connect(
     (state) => ({
+        roomInfoShowFlag : state.mrInfo.get('roomInfoShowFlag'),
+        rsvrInfoShowFlag : state.mrInfo.get('rsvrInfoShowFlag'),
+        myrsvrInfoShowFlag : state.mrInfo.get('myrsvrInfoShowFlag'),
+        rsvrCnfmShowFlag : state.mrInfo.get('rsvrCnfmShowFlag'),
+        gridFlag : state.mrInfo.get('gridFlag'),
         userName:state.config.get('userName')
     }),
     (dispatch) => ({

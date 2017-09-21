@@ -5,7 +5,7 @@ export default class Watson extends React.Component {
     render(){
         return(
             <div className={styles.container}>
-                <img src="/images/logo.png" style={{width:"15px",height:"20px",position:"absolute",left:"20px"}}/>
+                <img src="/images/idea.png" style={{width:"40px",height:"45px",position:"absolute",left:"20px", top:"-5px"}}/>
                 <span style={{marginLeft:"30px"}}>{this.props.content}</span>
             </div>
         );

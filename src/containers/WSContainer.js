@@ -5,26 +5,117 @@ import * as dialogActions from '../modules/dialog';
 import * as mrInfoActions from '../modules/mrInfo';
 import * as configActions from '../modules/config';
 
-class WSContainer extends Component{
+    class WSContainer extends Component{
 
-    shouldComponentUpdate(nextProps, nextState){
-        // console.log("WS shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
-        // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
-        // console.log('WSContainer : ',this)
 
-        // localStorage를 이용한 login처리
-        const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
-        DialogActions.sendMessage(false);
-        if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
-            context.userId = localStorage.userId;
-            ConfigActions.setUserName(localStorage.userName);
-            DialogActions.setNewContext(context);
-        }else{
-            //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
-            if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
-                && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
-                this.props = nextProps;
-                ConfigActions.setShowflag(false);
+         shouldComponentUpdate(nextProps, nextState){
+             // console.log("WS shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
+             // console.log("WS shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
+             // console.log('WSContainer : ',this)
+
+
+             // localStorage를 이용한 login처리
+             const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
+             DialogActions.sendMessage(false);
+             if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
+                 context.userId = localStorage.userId;
+                 ConfigActions.setUserName(localStorage.userName);
+                 DialogActions.setNewContext(context);
+             }else{
+                 //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
+                 if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
+                     && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
+                     this.props = nextProps;
+                     ConfigActions.setShowflag(false);
+
+
+                     MrInfoActions.controlShowFlag({
+                         roomInfoShowFlag : false,
+                         rsvrInfoShowFlag : false,
+                         rsvrCnfmShowFlag : false
+                     });
+
+            // console.log("==========",this.props.node,"============")
+            if(this.props.node[0].split('_')[2] == '1505178093805'){
+                this.getUserInfo();
+            }if(this.props.node == '회의실 목록 확인' ){
+                this.getConferenceRoomInfo(true);
+            }else if(this.props.node == '회의실 예약정보 확인'){
+                this.getConferenceRoomRsvrInfo(true);
+            }else if(this.props.node == '내 회의실 예약정보 확인'){
+                this.getConferenceRoomMyRsvrInfo(true);
+            }else if(this.props.node[0].split('_')[2] == '1505181649926'){
+                MrInfoActions.controlShowFlag({
+                    myrsvrInfoShowFlag : true
+                });
+            }else if(this.props.node == '회의실 예약'){
+                this.confirmConferenceRoomRsvr();
+            }else if(this.props.node == '회의실 예약 가능시'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : true
+                });
+            }else if(this.props.node == '회의실 예약진행'){
+                this.addConferenceRoomRsvr();
+            }else if(this.props.node[0].split('_')[2] == '1504828745338'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgConferenceRoomRsvrTitle();  //제목변경요청
+            }else if(this.props.node[0].split('_')[2] == '1504833419739'){
+                this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
+            }else if(this.props.node[0].split('_')[2] == '1504833707683'){
+              this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
+            }else if(this.props.node[0].split('_')[2] == '1505195154227'){
+                MrInfoActions.controlShowFlag({
+                    myrsvrInfoShowFlag : true
+                });
+            }else if(this.props.node[0].split('_')[2] == '1504833734623'){
+              MrInfoActions.controlShowFlag({
+                myrsvrInfoShowFlag : false
+              });
+              MrInfoActions.setGridFlag({
+                  setGridFlag : false
+              });
+               this.cancelConferenceRoom(); // 회의실 취소
+            }else if(this.props.node == '회의 자동시작'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.checkAutoStart();
+            }else if(this.props.node == '자동시작 가능시'){
+                this.rsvrAutoStart();
+            }else if(this.props.node == '설정정보 확인'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.getSettingInfo();
+            }else if(this.props.node[0].split('_')[2] == '1505106111927'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgDefaultTitle(); //기본 제목변경 요청
+            }else if(this.props.node[0].split('_')[2] == '1505106166872'){
+                MrInfoActions.controlShowFlag({
+                    roomInfoShowFlag : false,
+                    rsvrInfoShowFlag : false,
+                    rsvrCnfmShowFlag : false
+                });
+                this.chgDefaultTime(); //기본 시간변경 요청
+            }else if(this.props.node == '설정정보 생성'){
+                this.makeSettingInfo();
+            }else if(this.props.node[0].split('_')[2] == '1505201717364'){
+                this.logout();
+            }else if(this.props.node != ''){
 
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
@@ -32,63 +123,13 @@ class WSContainer extends Component{
                     rsvrCnfmShowFlag : false
                 });
 
-                //console.log("==========",this.props.node,"============")
-                if(this.props.node[0].split('_')[2] == '1505178093805'){
-                    this.getUserInfo();
-                }if(this.props.node == '회의실 목록 확인' ){
-                    this.getConferenceRoomInfo(true);
-                }else if(this.props.node == '회의실 예약정보 확인'){
-                    this.getConferenceRoomRsvrInfo(true);
-                }else if(this.props.node == '내 회의실 예약정보 확인'){
-                    this.getConferenceRoomMyRsvrInfo(true);
-                }else if(this.props.node[0].split('_')[2] == '1505181649926'){
-                    MrInfoActions.controlShowFlag({
-                        myrsvrInfoShowFlag : true
-                    });
-                }else if(this.props.node == '회의실 예약'){
-                    this.confirmConferenceRoomRsvr();
-                }else if(this.props.node == '회의실 예약 가능시'){
-                    MrInfoActions.controlShowFlag({
-                        roomInfoShowFlag : false,
-                        rsvrInfoShowFlag : false,
-                        rsvrCnfmShowFlag : true
-                    });
-                }else if(this.props.node == '회의실 예약진행'){
-                    this.addConferenceRoomRsvr();
-                }else if(this.props.node[0].split('_')[2] == '1504828745338'){
-                    this.chgConferenceRoomRsvrTitle();  //제목변경요청
-                }else if(this.props.node[0].split('_')[2] == '1504833419739'){
-                    this.cancelResearchResponse(); // 회의제목과 회의실번호 등 추출
-                }else if(this.props.node[0].split('_')[2] == '1504833707683'){
-                  this.cancelConferenceRoomResponse(); // 회의실 취소할 목록 뿌려줌
-                }else if(this.props.node[0].split('_')[2] == '1505195154227'){
-                    MrInfoActions.controlShowFlag({
-                        myrsvrInfoShowFlag : true
-                    });
-                }else if(this.props.node[0].split('_')[2] == '1504833734623'){
-                  MrInfoActions.controlShowFlag({
-                    myrsvrInfoShowFlag : false
-                  });
-                   this.cancelConferenceRoom(); // 회의실 취소
-                }else if(this.props.node == '회의 자동시작'){
-                    this.checkAutoStart();
-                }else if(this.props.node == '자동시작 가능시'){
-                    this.rsvrAutoStart();
-                }else if(this.props.node == '설정정보 확인'){
-                    this.getSettingInfo();
-                }else if(this.props.node[0].split('_')[2] == '1505106111927'){
-                    this.chgDefaultTitle(); //기본 제목변경 요청
-                }else if(this.props.node[0].split('_')[2] == '1505106166872'){
-                    this.chgDefaultTime(); //기본 시간변경 요청
-                }else if(this.props.node == '설정정보 생성'){
-                    this.makeSettingInfo();
-                }else if(this.props.node[0].split('_')[2] == '1505201717364'){
-                    this.logout();
-                }else if(this.props.node != ''){
+                MrInfoActions.setGridFlag({
+                    setGridFlag : false
+                });
 
-                }
             }
         }
+      }
         return false;
 
     }
