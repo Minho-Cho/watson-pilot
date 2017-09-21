@@ -116,18 +116,22 @@ import * as configActions from '../modules/config';
             }else if(this.props.node[0].split('_')[2] == '1505201717364'){
                 this.logout();
             }else if(this.props.node != ''){
+
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
+
                 MrInfoActions.setGridFlag({
                     setGridFlag : false
                 });
+
             }
         }
       }
         return false;
+
     }
 
     //로그인처리
@@ -150,6 +154,8 @@ import * as configActions from '../modules/config';
             }else{
                 const { context, DialogActions, ConfigActions } = this.props;
                 let user = JSON.parse(res);
+                localStorage.userId = user.id;
+                localStorage.userName = user.name;
                 ConfigActions.setUserName(user.name);
                 let newContext = context;
                 newContext.userId = user.id;
@@ -164,6 +170,8 @@ import * as configActions from '../modules/config';
         const { context, DialogActions, ConfigActions } = this.props;
         ConfigActions.setUserName('');
         let newContext = context;
+        localStorage.userId = '';
+        localStorage.userName = '';
         newContext.userId = '';
         DialogActions.setNewContext(newContext);
     }

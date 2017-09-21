@@ -73,9 +73,17 @@ const _nextWord = function(sentence, word, cnt){
     return sentence[idx+cnt].word;
 }
 
-const _findPrevMP = function(sentence, word, mp, w){
+const _findPrevMP = function(sentence, word, mp, w, l){
+    var p = l==undefined?1:l;
+    let t = 1;
     let idx = sentence.findIndex((item)=>{
-        return item.word === word;
+        if (item.word == word){
+            if (t == p){
+                return true;
+            }else{
+                t++;
+            }
+        }
     });
     let result = {};
     for (let i=idx-1 ; i>=0 ; i--){
@@ -89,11 +97,8 @@ const _findPrevMP = function(sentence, word, mp, w){
 }
 
 const _findFirstMP = function(sentence, word, mp, w){
-    let idx = sentence.findIndex((item)=>{
-        return item.word === word;
-    });
     let result = {};
-    for (let i=0 ; i<idx ; i++){
+    for (let i=0 ; i<sentence.length ; i++){
         if(sentence[i].pos == mp && (w == undefined || sentence[i].word == w)){
             result = sentence[i];
             result.loc = i;
@@ -105,7 +110,7 @@ const _findFirstMP = function(sentence, word, mp, w){
 
 const _findNextMP = function(sentence, word, mp){
     let idx = sentence.findIndex((item)=>{
-        return item.word === word;
+        return item.word == word;
     });
     let result = {};
     for (let i=idx+1 ; i<sentence.length ; i++){
@@ -118,13 +123,10 @@ const _findNextMP = function(sentence, word, mp){
     return result;
 }
 
-const _findLastMP = function(sentence, word, mp){
-    let idx = sentence.findIndex((item)=>{
-        return item.word === word;
-    });
+const _findLastMP = function(sentence, word, mp, w){
     let result = {};
-    for (let i=sentence.length-1 ; i>=idx ; i--){
-        if(sentence[i].pos == mp){
+    for (let i=sentence.length-1 ; i>=0 ; i--){
+        if(sentence[i].pos == mp && (w == undefined || sentence[i].word == w)){
             result = sentence[i];
             result.loc = i;
             break;
@@ -135,7 +137,7 @@ const _findLastMP = function(sentence, word, mp){
 
 const _calPrevLength = function(sentence, loc){
     let cnt = 0;
-    sentence.map((v,i)=>{
+    sentence.forEach((v,i)=>{
         if(i < loc){
             cnt+=v.word.length;
         }
@@ -260,50 +262,58 @@ module.exports = (app) => {
                 });
 
                 var prevMp = {};
+                var firstMP = _findFirstMP(res,'"','SY','"');
+                var lastMP = _findLastMP(res,'"','SY','"');
+                if (JSON.stringify(firstMP)=='{}'){firstMP.pos = 0}
+                if (JSON.stringify(lastMP)=='{}'){lastMP.pos = res.length}
+                let titlePrior = 0;
 
                 //회의시간/제목 추출
                 res.map((v,i)=>{
-                    //오전/오후일 경우 판단
-                    if(v.word == '오전' && (res[i+1].word == '에' || res[i+2].word == '에')) {
-                        apDist = 'AM';
-                    }else if(v.word == '오후' && (res[i+1].word == '에' || res[i+2].word == '에')) {
-                        apDist = 'PM';
-                    //회의시간 추출
-                    }else if(v.pos == 'SN'){
-                        if (res[i+1].word == '분' && res[i+2].word == '동안'){
-                            meetTime = '30';
-                        }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
-                            meetTime = v.word+'00';
-                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
-                                  res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
-                            meetTime = v.word+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
-                            if (Number(v.word)<9){
-                                rsvrTFH = _paddingZero((Number(v.word)+12));
-                            }else{
-                                rsvrTFH = _paddingZero(v.word);
+                    if (i > firstMP.pos && i < lastMP.pos){
+                        //오전/오후일 경우 판단
+                        if(v.word == '오전' && (res[i+1].word == '에' || res[i+2].word == '에')) {
+                            apDist = 'AM';
+                        }else if(v.word == '오후' && (res[i+1].word == '에' || res[i+2].word == '에')) {
+                            apDist = 'PM';
+                        //회의시간 추출
+                        }else if(v.pos == 'SN'){
+                            if (res[i+1].word == '분' && res[i+2].word == '동안'){
+                                meetTime = '30';
+                            }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
+                                meetTime = v.word+'00';
+                            }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
+                                      res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
+                                meetTime = v.word+'30';
+                            }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
+                                if (Number(v.word)<9){
+                                    rsvrTFH = _paddingZero((Number(v.word)+12));
+                                }else{
+                                    rsvrTFH = _paddingZero(v.word);
+                                }
+                                rsvrTFM = '30';
                             }
-                            rsvrTFM = '30';
-                        }
-                    }else if(v.pos == 'MM'){
-                        let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
-                        if (res[i+1].word == '분' && res[i+2].word == '동안'){
-                            meetTime = '30';
-                        }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
-                            meetTime = _paddingZero(t)+'00';
-                        }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
-                                  res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
-                            meetTime = _paddingZero(t)+'30';
-                        }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
-                            if (t<9){
-                                rsvrTFH = _paddingZero(t+12);
-                            }else{
-                                rsvrTFH = _paddingZero(t);
+                        }else if(v.pos == 'MM'){
+                            let t = v.word=='한'?1:v.word=='두'?2:v.word=='세'?3:v.word=='네'?4:0;
+                            if (res[i+1].word == '분' && res[i+2].word == '동안'){
+                                meetTime = '30';
+                            }else if (res[i+1].word == '시간' && res[i+2].word == '동안'){
+                                meetTime = _paddingZero(t)+'00';
+                            }else if (res[i+1].word == '시간' && _nextWord(res,v.pos,2) == 'SN' && res[i+3].word=='분' && res[i+4].word == '동안' ||
+                                      res[i+1].word == '시간' && res[i+2].word == '반' && res[i+3].word=='동안'){
+                                meetTime = _paddingZero(t)+'30';
+                            }else if (res[i+1].word == '시' && res[i+2].word == '반' && (res[i+3].word == '회의' || res[i+3].word == '에' || res[i+3].word == '부터')){
+                                if (t<9){
+                                    rsvrTFH = _paddingZero(t+12);
+                                }else{
+                                    rsvrTFH = _paddingZero(t);
+                                }
+                                rsvrTFM = '30';
                             }
-                            rsvrTFM = '30';
                         }
+                    }
                     //회의제목 추출
-                    }else if(v.pos == 'VCP+ETM' || v.pos == 'ETM'){
+                    if (titlePrior < 2 && (v.pos == 'VCP+ETM' || v.pos == 'ETM')){
                         if (res[i+1].word == '이름' || res[i+1].word == '제목' || res[i+1].word == '회의' || res[i+1].word == '주제' || res[i+1].word == '명' || res[i+2].word == '이름' || res[i+2].word == '제목' || res[i+2].word == '회의' || res[i+2].word == '주제' || res[i+2].word == '명' ){
                             if (res[i+2].word == '으로' || res[i+3].word == '으로' || res[i+2].word == '로'){
                                 prevMp = _findPrevMP(res,v.word,'JKB','에');
@@ -320,27 +330,128 @@ module.exports = (app) => {
 
                                 if(JSON.stringify(prevMp) == '{}'){
                                     meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                                    titlePrior = 2;
                                 }else{
                                     meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
+                                    titlePrior = 2;
                                 }
                             }
                         }
-                    }else if (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고')){
+                    }else if (titlePrior < 3 && (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고') || (v.pos == 'JKB' && v.word == '로') || (v.pos == 'JKB' && v.word == '으로'))){
                         prevMp = _findPrevMP(res,v.word,'JKB','에');
-                        let tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
-                        let tmpI = i;
-                        if(res[i-1].word == '이' && res[i-1].pos == 'VCP') tmpI--;
-                        if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
-                            prevMp = _findPrevMP(res,v.word,'JX','부터');
+                        let tmpLoc = 0;
+                        if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분')){
                             tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                         }
+                        let tmpI = i;
+
+                        if(res[i-1].word == '이' && res[i-1].pos == 'VCP') tmpI--;
+                        if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
+                            if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분')){
+                                prevMp = _findPrevMP(res,v.word,'JX','부터');
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
+                            }
+                        }
                         if(_findPrevMP(res,v.word,'NNG','동안').loc > tmpLoc){
-                            prevMp = _findPrevMP(res,v.word,'NNG','동안');
+                            if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시간')){
+                                prevMp = _findPrevMP(res,v.word,'NNG','동안');
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','제목').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','제목');
+                            if (res[prevMp.loc+1].word == '이' || res[prevMp.loc+1].word == '은' || res[prevMp.loc+1].word == '을'){
+                                var tmp = prevMp.loc+1;
+                                prevMp = res[tmp];
+                                prevMp.loc = tmp;
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc+1;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','주제').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','주제');
+                            if (res[prevMp.loc+1].word == '가' || res[prevMp.loc+1].word == '는' || res[prevMp.loc+1].word == '를'){
+                                var tmp = prevMp.loc+1;
+                                prevMp = res[tmp];
+                                prevMp.loc = tmp;
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc+1;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','회의').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','회의');
+                            if (res[prevMp.loc+1].word == '명' || res[prevMp.loc+1].word == '주제' || res[prevMp.loc+1].word == '이름' || res[prevMp.loc+1].word == '제목'){
+                                if (res[prevMp.loc+2].word == '가' || res[prevMp.loc+2].word == '는' || res[prevMp.loc+2].word == '를' || res[prevMp.loc+2].word == '이' || res[prevMp.loc+2].word == '은' || res[prevMp.loc+2].word == '을'){
+                                    var tmp = prevMp.loc+2;
+                                    prevMp = res[tmp];
+                                    prevMp.loc = tmp;
+                                }
+                            }
                         }
                         if(JSON.stringify(prevMp) == '{}'){
                             meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                            titlePrior = 3;
                         }else{
                             meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
+                            titlePrior = 3;
+                        }
+                    }else if (titlePrior < 1 && (v.pos == 'SC' && v.word == ',')){
+                        prevMp = _findPrevMP(res,v.word,'JKB','에');
+                        let tmpLoc = 0;
+                        if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분')){
+                            tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
+                        }
+                        let tmpI = i;
+                        if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
+                            if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분')){
+                                prevMp = _findPrevMP(res,v.word,'JX','부터');
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
+                            }
+                        }
+                        if(_findPrevMP(res,v.word,'NNG','동안').loc > tmpLoc){
+                            if ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시간')){
+                                prevMp = _findPrevMP(res,v.word,'NNG','동안');
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','제목').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','제목');
+                            if (res[prevMp.loc+1].word == '이' || res[prevMp.loc+1].word == '은' || res[prevMp.loc+1].word == '을'){
+                                var tmp = prevMp.loc+1;
+                                prevMp = res[tmp];
+                                prevMp.loc = tmp;
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc+1;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','주제').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','주제');
+                            if (res[prevMp.loc+1].word == '가' || res[prevMp.loc+1].word == '는' || res[prevMp.loc+1].word == '를'){
+                                var tmp = prevMp.loc+1;
+                                prevMp = res[tmp];
+                                prevMp.loc = tmp;
+                                tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc+1;
+                            }
+                        }
+                        if(_findFirstMP(res,v.word,'NNG','회의').loc >= tmpLoc){
+                            prevMp = _findFirstMP(res,v.word,'NNG','회의');
+                            if (res[prevMp.loc+1].word == '명' || res[prevMp.loc+1].word == '주제' || res[prevMp.loc+1].word == '이름' || res[prevMp.loc+1].word == '제목'){
+                                if (res[prevMp.loc+2].word == '가' || res[prevMp.loc+2].word == '는' || res[prevMp.loc+2].word == '를' || res[prevMp.loc+2].word == '이' || res[prevMp.loc+2].word == '은' || res[prevMp.loc+2].word == '을'){
+                                    var tmp = prevMp.loc+2;
+                                    prevMp = res[tmp];
+                                    prevMp.loc = tmp;
+                                }
+                            }
+                        }
+                        if(JSON.stringify(prevMp) == '{}'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, 0)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, 0)].loc);
+                            titlePrior = 1;
+                        }else{
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
+                            titlePrior = 1;
+                        }
+                    }else if (titlePrior < 4 && (v.pos == 'SY' && v.word == '"')){
+                        prevMp = _findPrevMP(res,v.word,'SY','"',2);
+                        if (JSON.stringify(prevMp)!='{}'){
+                            meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, firstMP.loc+1)].loc,srcTextArr[_calPrevLength(res, lastMP.loc)].loc-srcTextArr[_calPrevLength(res, firstMP.loc+1)].loc);
+                            titlePrior = 4;
                         }
                     }
                 })
