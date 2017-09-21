@@ -17,7 +17,7 @@ import ConfigInfoContainer from './containers/ConfigInfoContainer';
 import styles from './style/App.css';
 
 const dotenv = require('dotenv');
-
+ 
 class App extends Component {
 
     componentWillMount(){
