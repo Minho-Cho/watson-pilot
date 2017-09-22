@@ -19,8 +19,14 @@ import * as configActions from '../modules/config';
              DialogActions.sendMessage(false);
              if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
                  context.userId = localStorage.userId;
-                 ConfigActions.setUserName(localStorage.userName);
-                 DialogActions.setNewContext(context);
+                 fetch('/api/common/getUserInfo',{
+                     headers: new Headers({'Content-Type': 'application/json'}),
+                     method : 'POST',
+                     body : JSON.stringify({inputText:localStorage.userId})
+                 }).then((response) => {
+                     ConfigActions.setUserName(localStorage.userName);
+                     DialogActions.setNewContext(context);
+                 });
              }else{
                  //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
                  if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)

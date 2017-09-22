@@ -8,7 +8,7 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
 
     render(){
 		let rsvrDay = '';
-		if (this.props.content != ''){
+		if (this.props.content.length > 2){
 			rsvrDay = JSON.parse(this.props.content)[0].RSVR_FR_DD;
 			rsvrDay = rsvrDay.substr(0,4)+' / '+rsvrDay.substr(4,2)+' / '+rsvrDay.substr(6,2);
 		}
