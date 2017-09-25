@@ -14,6 +14,12 @@ class WSContainer extends Component{
 
         // localStorage를 이용한 login처리
         const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
+//        DialogActions.sendMessage(false);
+//        if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
+//            context.userId = localStorage.userId;
+//            ConfigActions.setUserName(localStorage.userName);
+//            DialogActions.setNewContext(context);
+//        }else{
             //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
             if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
                 && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
@@ -315,27 +321,27 @@ class WSContainer extends Component{
     //내 회의실 예약정보 조회
     getConferenceRoomMyRsvrInfo = (showflag) =>{
         console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
-        const {input, context, ConfigActions} = this.props;
+        const {input, userName, context, ConfigActions} = this.props;
 
-        Common.getUser(input).then((res)=>{
-            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Successed (MyRsvrInfoUser: ' + res.userId + ')');
+        Common.getUser(input, userName).then((res)=>{
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Successed (MyRsvrInfoUser: ' + res.myRsvrUserId + ')');
             ConfigActions.setMyRsvrUser({
-                userId : res.userId,
-                userName : res.userName
+                myRsvrUserId : res.myRsvrUserId,
+                myRsvrUserName : res.myRsvrUserName
             });
         },(err)=>{
-            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Faild (MyRsvrInfoUser: ' + res + ')');
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Faild (err: ' + err + ')');
         }).then(()=>{
 
-          console.log('this.props.userId: ' + this.props.userId + ')');
+          console.log('this.props.myRsvrUserId: ' + this.props.myRsvrUserId + ')');
 
           return new Promise((resolve, reject)=>{
               this.getConferenceRoomInfo(false).then(()=>{
-                  const {context, entities, userId, DialogActions, MrInfoActions} = this.props;
+                  const {context, entities, myRsvrUserId, DialogActions, MrInfoActions} = this.props;
                   return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
                       headers: new Headers({'Content-Type': 'application/json'}),
                       method : 'POST',
-                      body : JSON.stringify({context:context, entities:entities, userId:userId})
+                      body : JSON.stringify({context:context, entities:entities, myRsvrUserId:myRsvrUserId})
                   }).then((response) => {
                       return response.text();
                   }).then((res)=>{
@@ -350,8 +356,8 @@ class WSContainer extends Component{
                           DialogActions.setNewContext(newContext);
                           MrInfoActions.setMyRsvrInfo({
 
-                            myrsvrInfo : res
-                            //, myrsvrInfoShowFlag : showflag
+                          myrsvrInfo : res
+
                           });
                       }
                       resolve();
@@ -517,7 +523,8 @@ export default connect(
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
 		    rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
-        userId : state.config.get('userId'),
+        myRsvrUserId : state.config.get('myRsvrUserId'),
+        myRsvrUserName : state.config.get('myRsvrUserName'),
         userName : state.config.get('userName'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),

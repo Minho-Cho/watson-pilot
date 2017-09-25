@@ -523,15 +523,20 @@ var Common = (function() {
         });
     }
 
-    function getUser(input) {
+    function getUser(input, userName) {
         var inputText = input.text
+
+//        console.log('common getUser input : ', input);
+//        console.log('common getUser inputText : ', inputText);
+//        console.log('common getUser userName : ', userName);
+//        console.log('common getUser userNameText : ', userNameText);
 
         return new Promise((resolve, reject) => {
             //형태소 분석
             fetch('/api/mpAnalysisUser', {
                 headers: new Headers({'Content-Type': 'application/json'}),
                 method: 'POST',
-                body: JSON.stringify({input: inputText})
+                body: JSON.stringify({input: inputText, userName: userName})
             }).then((response) => {
                 return response.text();
             }).then((response) => {
@@ -540,8 +545,8 @@ var Common = (function() {
                 var result = JSON.parse(response);
 
                 let MyRsvrUserInfo = {
-                    userId: result.userId,
-                    userName: result.userName
+                    myRsvrUserId: result.myRsvrUserId,
+                    myRsvrUserName: result.myRsvrUserName
                 }
                 resolve(MyRsvrUserInfo);
 

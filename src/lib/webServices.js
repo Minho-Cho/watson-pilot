@@ -81,22 +81,21 @@ module.exports = function(app){
         var egssRequest = new Service.COEaiMngShared.getConferenceRoomMyRsvrInfo();
 
 //        var json = {EMP_ID: process.env.LOGIN_ID, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
-        var json = {EMP_ID: request.body.userId, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
+        var json = {EMP_ID:request.body.myRsvrUserId, MR_GBN:'M', COMP_ID:'YP', BLDNG_ID:'ICTSC', FLOR_LOC:'6', BTN_STS_CD: 'R'};
         egssRequest.getConferenceRoomMyRsvrInfoParameter = new Service.Types.getConferenceRoomMyRsvrInfoParameter(json);
         console.log('parameter_json :: ', JSON.stringify(json));
 
         egssRequest.request((err, res) => {
-            if (!(err === null || err == 'null')){
-                console.log('ERR : ',err);
-            }else{
-                var result = res.extract().getConferenceRoomMyRsvrInfoReturn;
-                var rsvrInfo = result.RSVR_INFO;
-                if (result.E_RETVAL != 'S'){
-                    console.log('ERR : ',result.E_RETMSG);
-                }else{
-                    response.send(rsvrInfo);
-                }
-            }
+          var result = res.extract().getConferenceRoomMyRsvrInfoReturn;
+          var rsvrInfo = result.RSVR_INFO;
+
+          console.log('rsvrInfo :: ', rsvrInfo);
+
+          if (result.E_RETVAL != 'S'){
+              console.log('ERR : ',result.E_RETMSG);
+          }
+              response.send(rsvrInfo);
+
         });
     });
 

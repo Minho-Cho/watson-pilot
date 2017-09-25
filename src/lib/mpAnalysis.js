@@ -607,6 +607,7 @@ module.exports = (app) => {
     app.post('/api/mpAnalysisUser', jsonParser, (request, response) => {
 
             var srcText = request.body.input;
+            var loginUserName = request.body.userName;
             let res = [];
             let user = '';
 
@@ -625,35 +626,40 @@ module.exports = (app) => {
 
                 //UserName추출
                 res.map((v,i)=>{
-                    if(v.pos == 'JKS'){
+
+
+                    if(v.pos == 'JKS' || v.pos == 'JKG'){
                         if(res[i-1].word != '선임' && res[i-1].word != '수석' && res[i-1].word != '책임' && res[i-1].word != '이사'){
                             if(res[i-1].word.length < 3){
-                               userName = res[i-2].word + res[i-1].word ;  // 육민 + 형 + 이,
-                               console.log("userName : " + userName);
+                                if(res[i-1].pos == 'NP'){
+                                    userName = loginUserName ;  // 내 + 가,
+                                    console.log("mpAnalysisUser result userName : " + userName);
+                                }else{
+                                  userName = res[i-2].word + res[i-1].word ;  // 육민 + 형 + 이,
+                                  console.log("mpAnalysisUser result userName : " + userName);
+                                }
                             }else{
                                userName = res[i-1].word ;                  // 조기수 + 가, 조민호 + 가
-                               console.log("userName : " + userName);
+                               console.log("mpAnalysisUser result userName : " + userName);
                             }
                         }else{
                             if(res[i-2].word.length < 3){
                                 userName = res[i-3].word + res[i-2].word ;  // 육민 + 형 + 선임 + 이,
-                                console.log("userName : " + userName);
+                                console.log("mpAnalysisUser result userName : " + userName);
                             }else{
                                 userName = res[i-2].word ;                  // 조민호 + 선임 + 이, 조기수 + 수석 + 이
-                                console.log("userName : " + userName);
+                                console.log("mpAnalysisUser result userName : " + userName);
                             }
                         }
                     }
                 })
 
-                /*내가, 나의 -> 기존 로그인된 ID, name을 가지고 db에서 찾아서 그것으로 조회. 만들기*/
-
                 Users.find({name:userName}, (e, userData)=>{
-                    var userId = userData[0].id;
-                    var userName = userData[0].name;
+                    var myRsvrUserId = userData[0].id;
+                    var myRsvrUserName = userData[0].name;
 
                     let resp = {
-                        userId : userId, userName : userName
+                        myRsvrUserId : myRsvrUserId, myRsvrUserName : myRsvrUserName
                     }
                     response.send(resp)
                 },(err)=>{

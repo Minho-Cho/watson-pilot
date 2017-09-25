@@ -15,7 +15,8 @@ const initialState = Map({
     settings : {},
     showFlag : false,
     userName : '',
-    userId : ''
+    myRsvrUserId : '',
+    myRsvrUserName : ''
 });
 
 export default handleActions({
@@ -28,10 +29,10 @@ export default handleActions({
     [SET_USERNAME]:(state, action) => state.set('userName', action.payload),
 
     [SET_MYRSVR_USER]:(state, action) => {
-        const {userId, userName} = action.payload;
+        const {myRsvrUserId, myRsvrUserName} = action.payload;
 
-        return state.set('userId', userId)
-                    .set('userName', userName)
+        return state.set('myRsvrUserId', myRsvrUserId)
+                    .set('myRsvrUserName', myRsvrUserName)
 
     }
 
