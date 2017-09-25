@@ -8,6 +8,7 @@ const CONTROL_SHOW_FLAG = 'mrInfo/CONTROL_SHOW_FLAG';
 const INIT_RSVR_ROOM = 'mrInfo/INIT_RSVR_ROOM';
 const SET_RSVRTIMEINFO = 'mrInfo/SET_RSVRTIMEINFO';
 const SET_RSVRCANCELINFO = 'mrInfo/SET_RSVRCANCELINFO';
+const GRID_SHOW_FLAG = 'mrInfo/GRID_SHOW_FLAG';
 
 export const setRoomInfo = createAction(SET_ROOMINFO);
 export const setRsvrInfo = createAction(SET_RSVRINFO);
@@ -16,6 +17,7 @@ export const controlShowFlag = createAction(CONTROL_SHOW_FLAG);
 export const initRsvrRoom = createAction(INIT_RSVR_ROOM);
 export const setRsvrTimeInfo = createAction(SET_RSVRTIMEINFO);
 export const setRsvrCancelInfo = createAction(SET_RSVRCANCELINFO);
+export const setGridFlag = createAction(GRID_SHOW_FLAG);
 
 const initialState = Map({
     roomInfo : '',
@@ -26,8 +28,8 @@ const initialState = Map({
     roomInfoShowFlag : false,
     rsvrInfoShowFlag : false,
     myrsvrInfoShowFlag : false,
-    rsvrCnfmShowFlag : false
-
+    rsvrCnfmShowFlag : false,
+    gridFlag : false
 });
 
 export default handleActions({
@@ -43,6 +45,7 @@ export default handleActions({
                     .set('rsvrInfoShowFlag', rsvrInfoShowFlag)
                     .set('myrsvrInfoShowFlag', myrsvrInfoShowFlag)
                     .set('rsvrCnfmShowFlag', rsvrCnfmShowFlag)
+                    .set('gridFlag', true)
     },
     [SET_RSVRINFO]:(state, action) => {
         const { rsvrInfo, rsvrInfoShowFlag} = action.payload;
@@ -54,6 +57,7 @@ export default handleActions({
                     .set('rsvrInfoShowFlag', rsvrInfoShowFlag)
                     .set('myrsvrInfoShowFlag', myrsvrInfoShowFlag)
                     .set('rsvrCnfmShowFlag', rsvrCnfmShowFlag)
+
     },
     [SET_MYRSVRINFO]:(state, action) => {
         const { myrsvrInfo, myrsvrInfoShowFlag} = action.payload;
@@ -65,6 +69,7 @@ export default handleActions({
                     .set('myrsvrInfoShowFlag', myrsvrInfoShowFlag)
                     .set('rsvrInfoShowFlag', rsvrInfoShowFlag)
                     .set('rsvrCnfmShowFlag', rsvrCnfmShowFlag)
+                    .set('gridFlag', true)
 
     },
     [CONTROL_SHOW_FLAG]:(state, action) => {
@@ -74,6 +79,10 @@ export default handleActions({
                     .set('rsvrInfoShowFlag', rsvrInfoShowFlag)
                     .set('myrsvrInfoShowFlag', myrsvrInfoShowFlag)
                     .set('rsvrCnfmShowFlag', rsvrCnfmShowFlag)
+                    .set('gridFlag', true)
+    },
+    [GRID_SHOW_FLAG]:(state, action) => {
+        return state.set('gridFlag', false)
     },
     [INIT_RSVR_ROOM]:(state, action) => {
         return state.set('roomInfo', '')
@@ -82,6 +91,7 @@ export default handleActions({
                     .set('rsvrInfoShowFlag', false)
                     .set('myrsvrInfoShowFlag', false)
                     .set('rsvrCnfmShowFlag', false)
+                    .set('gridFlag', true)
     },
     [SET_RSVRTIMEINFO]:(state, action) => state.set('rsvrTimeInfo', action.payload),
 	[SET_RSVRCANCELINFO]:(state, action) => state.set('rsvrCancelInfo', action.payload)

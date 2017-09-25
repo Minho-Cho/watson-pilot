@@ -206,12 +206,12 @@ module.exports = function(app){
 
         var task = new cron(startDate, startTime, func);
         RsvrAutos.create({
-            id: process.env.LOGIN_ID,
+            id: request.body.context.userId,
             date: startDate,
             time: startTime,
             reqstNo: reqstNo
         }, (err, res)=>{
-            response.send(task);
+            response.send(startDate+' '+startTime+' '+reqstNo);
         });
     });
 

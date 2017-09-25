@@ -75,6 +75,7 @@ module.exports = (app) => {
 
     app.post('/api/common/getUserInfo', jsonParser, (request, response) => {
         Users.find({id:request.body.inputText}, (err, res)=>{
+            process.env.LOGIN_ID = request.body.inputText;
             response.send(res[0]);
         });
     });
