@@ -17,11 +17,11 @@ import * as configActions from '../modules/config';
              // localStorage를 이용한 login처리
              const { MrInfoActions, DialogActions, ConfigActions, context } = nextProps;
              DialogActions.sendMessage(false);
-            //  if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
-            //      context.userId = localStorage.userId;
-            //      ConfigActions.setUserName(localStorage.userName);
-            //      DialogActions.setNewContext(context);
-            //  }else{
+             if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
+                 context.userId = localStorage.userId;
+                 ConfigActions.setUserName(localStorage.userName);
+                 DialogActions.setNewContext(context);
+             }else{
                  //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
                  if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
                      && JSON.stringify(nextProps.rsvrTimeInfo)==JSON.stringify(this.props.rsvrTimeInfo)){
@@ -116,22 +116,18 @@ import * as configActions from '../modules/config';
             }else if(this.props.node[0].split('_')[2] == '1505201717364'){
                 this.logout();
             }else if(this.props.node != ''){
-
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
-
                 MrInfoActions.setGridFlag({
                     setGridFlag : false
                 });
-
             }
-      //  }
+        }
       }
         return false;
-
     }
 
     //로그인처리
@@ -154,8 +150,6 @@ import * as configActions from '../modules/config';
             }else{
                 const { context, DialogActions, ConfigActions } = this.props;
                 let user = JSON.parse(res);
-                localStorage.userId = user.id;
-                localStorage.userName = user.name;
                 ConfigActions.setUserName(user.name);
                 let newContext = context;
                 newContext.userId = user.id;
@@ -170,8 +164,6 @@ import * as configActions from '../modules/config';
         const { context, DialogActions, ConfigActions } = this.props;
         ConfigActions.setUserName('');
         let newContext = context;
-        localStorage.userId = '';
-        localStorage.userName = '';
         newContext.userId = '';
         DialogActions.setNewContext(newContext);
     }
