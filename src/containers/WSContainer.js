@@ -5,6 +5,7 @@ import * as dialogActions from '../modules/dialog';
 import * as mrInfoActions from '../modules/mrInfo';
 import * as configActions from '../modules/config';
 
+
     class WSContainer extends Component{
 
 
@@ -19,8 +20,14 @@ import * as configActions from '../modules/config';
              DialogActions.sendMessage(false);
              if (localStorage.userId != '' && (context.userId == undefined || context.userId == '')){
                  context.userId = localStorage.userId;
-                 ConfigActions.setUserName(localStorage.userName);
-                 DialogActions.setNewContext(context);
+                 fetch('/api/common/getUserInfo',{
+                     headers: new Headers({'Content-Type': 'application/json'}),
+                     method : 'POST',
+                     body : JSON.stringify({inputText:localStorage.userId})
+                 }).then((response) => {
+                     ConfigActions.setUserName(localStorage.userName);
+                     DialogActions.setNewContext(context);
+                 });
              }else{
                  //conversation이 update되지 않거나 rsvrTimeInfo가 update되었을 경우에는 무시(무한루프 제거)
                  if (JSON.stringify(nextProps.context.system.dialog_turn_counter)!=JSON.stringify(this.props.context.system==undefined?0:this.props.context.system.dialog_turn_counter)
@@ -116,17 +123,34 @@ import * as configActions from '../modules/config';
             }else if(this.props.node[0].split('_')[2] == '1505201717364'){
                 this.logout();
             }else if(this.props.node != ''){
+<<<<<<< master
+=======
+
+
+>>>>>>> master
                 MrInfoActions.controlShowFlag({
                     roomInfoShowFlag : false,
                     rsvrInfoShowFlag : false,
                     rsvrCnfmShowFlag : false
                 });
+<<<<<<< master
                 MrInfoActions.setGridFlag({
                     setGridFlag : false
                 });
+=======
+
+
+                MrInfoActions.setGridFlag({
+                    setGridFlag : false
+                });
+
+
+>>>>>>> master
             }
+
         }
       }
+
         return false;
     }
 
@@ -353,34 +377,57 @@ import * as configActions from '../modules/config';
     //내 회의실 예약정보 조회
     getConferenceRoomMyRsvrInfo = (showflag) =>{
         console.log('getConferenceRoomMyRsvrInfo called : ',showflag);
-        return new Promise((resolve, reject)=>{
-            this.getConferenceRoomInfo(false).then(()=>{
-                const {context, entities, DialogActions, MrInfoActions} = this.props;
-                return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
-                    headers: new Headers({'Content-Type': 'application/json'}),
-                    method : 'POST',
-                    body : JSON.stringify({context:context, entities:entities})
-                }).then((response) => {
-                    return response.text();
-                }).then((res)=>{
-                    console.log("res ::" + res);
-                    if(res == '[]'){
-                        var newContext = context;
-                        newContext.myRsvr  = 'N';
-                        DialogActions.setNewContext(newContext);
-                    }else{
-                        var newContext = context;
-                        newContext.myRsvr  = 'Y';
-                        DialogActions.setNewContext(newContext);
-                        MrInfoActions.setMyRsvrInfo({
-                          myrsvrInfo : res
-                          //, myrsvrInfoShowFlag : showflag
-                        });
-                    }
-                    resolve();
-                });
+        const {input, userName, context, ConfigActions} = this.props;
+
+        Common.getUser(input, userName).then((res)=>{
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Successed (MyRsvrInfoUser: ' + res.myRsvrUserId + ')');
+            ConfigActions.setMyRsvrUser({
+                myRsvrUserId : res.myRsvrUserId,
+                myRsvrUserName : res.myRsvrUserName
             });
-        });
+        },(err)=>{
+            console.log('getConferenceRoomMyRsvrInfo MyRsvrInfoUser called Faild (err: ' + err + ')');
+        }).then(()=>{
+
+          console.log('this.props.myRsvrUserId: ' + this.props.myRsvrUserId + ')');
+
+          return new Promise((resolve, reject)=>{
+              this.getConferenceRoomInfo(false).then(()=>{
+                  const {context, entities, myRsvrUserId, DialogActions, MrInfoActions} = this.props;
+                  return fetch('/api/webservice/getConferenceRoomMyRsvrInfo', {
+                      headers: new Headers({'Content-Type': 'application/json'}),
+                      method : 'POST',
+                      body : JSON.stringify({context:context, entities:entities, myRsvrUserId:myRsvrUserId})
+                  }).then((response) => {
+                      return response.text();
+                  }).then((res)=>{
+                      console.log("res ::" + res);
+                      if(res == '[]'){
+                          var newContext = context;
+                          newContext.myRsvr  = 'N';
+                          DialogActions.setNewContext(newContext);
+                      }else{
+                          var newContext = context;
+                          newContext.myRsvr  = 'Y';
+                          DialogActions.setNewContext(newContext);
+                          MrInfoActions.setMyRsvrInfo({
+
+                          myrsvrInfo : res
+
+                          });
+                      }
+                      resolve();
+
+                  });
+
+              });
+          });
+
+
+
+
+
+        })
     }
 
     //회의실 예약가능 판단
@@ -532,6 +579,9 @@ export default connect(
         roomInfo : state.mrInfo.get('roomInfo'),
         rsvrTimeInfo : state.mrInfo.get('rsvrTimeInfo'),
 		    rsvrCancelInfo : state.mrInfo.get('rsvrCancelInfo'),
+        myRsvrUserId : state.config.get('myRsvrUserId'),
+        myRsvrUserName : state.config.get('myRsvrUserName'),
+        userName : state.config.get('userName'),
         input : state.dialog.get('input'),
         context : state.dialog.get('context'),
         entities : state.dialog.get('entities'),
