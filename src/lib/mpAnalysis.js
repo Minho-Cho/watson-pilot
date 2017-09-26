@@ -272,7 +272,7 @@ module.exports = (app) => {
 
                 //회의시간/제목 추출
                 res.map((v,i)=>{
-                    if (i > firstMP.pos && i < lastMP.pos){
+                    if (i >= firstMP.pos && i <= lastMP.pos){
                         //오전/오후일 경우 판단
                         if(v.word == '오전' && (res[i+1].word == '에' || res[i+2].word == '에')) {
                             apDist = 'AM';
