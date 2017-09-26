@@ -11,8 +11,8 @@ class ConversationContainer extends Component{
     }
 
     shouldComponentUpdate(nextProps, nextState){
-        // console.log("shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " " + JSON.stringify(nextState));
-        // console.log("shouldComponentUpdate:this: " + JSON.stringify(this.props) + " " + JSON.stringify(this.state));
+//         console.log("shouldComponentUpdate:next: " + JSON.stringify(nextProps) + " / " + JSON.stringify(nextState));
+//         console.log("shouldComponentUpdate:this: " + JSON.stringify(this.props) + " / " + JSON.stringify(this.state));
         if (nextProps.sendMessageTrigger===true){
             this.props = nextProps;
             this.sendMessage();

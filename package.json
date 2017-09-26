@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "admin-mongo": "0.0.23",
     "autoprefixer": "^7.1.2",
     "body-parser": "^1.17.2",
     "child_process": "^1.0.2",

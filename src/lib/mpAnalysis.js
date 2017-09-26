@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 
 var Settings = require("../models/settings");
+var Users = require("../models/users");
 
 const run_cmd = function(cmd, args, callback){
     const { spawn } = require('child_process');
@@ -267,6 +268,8 @@ module.exports = (app) => {
                 if (JSON.stringify(firstMP)=='{}'){firstMP.pos = 0}
                 if (JSON.stringify(lastMP)=='{}'){lastMP.pos = res.length}
                 let titlePrior = 0;
+
+
                 //회의시간/제목 추출
                 res.map((v,i)=>{
                     if (i > firstMP.pos && i < lastMP.pos){
@@ -339,6 +342,7 @@ module.exports = (app) => {
                     }else if (titlePrior < 3 && (v.pos == 'VCP+EC' || (v.pos == 'EC' && v.word == '라고') || (v.pos == 'JKB' && v.word == '로') || (v.pos == 'JKB' && v.word == '으로'))){
                         prevMp = _findPrevMP(res,v.word,'JKB','에');
                         let tmpLoc = 0;
+
                         if (JSON.stringify(prevMp)!='{}' && ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분'))){
                             tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                         }
@@ -392,22 +396,29 @@ module.exports = (app) => {
                                 meetingTitle = srcText.substr(srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc,srcTextArr[_calPrevLength(res, tmpI)].loc-srcTextArr[_calPrevLength(res, prevMp.loc+1)].loc);
                                 titlePrior = 3;
                             }
+
                         }
                     }else if (titlePrior < 1 && (v.pos == 'SC' && v.word == ',')){
                         prevMp = _findPrevMP(res,v.word,'JKB','에');
                         let tmpLoc = 0;
+
                         if (JSON.stringify(prevMp)!='{}' && ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분'))){
+
                             tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                         }
                         let tmpI = i;
                         if(_findPrevMP(res,v.word,'JX','부터').loc > tmpLoc){
+
                             if (JSON.stringify(prevMp)!='{}' && ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시') || (res[prevMp.loc-1].pos == 'NNG' && res[prevMp.loc-1].word == '반') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분'))){
+
                                 prevMp = _findPrevMP(res,v.word,'JX','부터');
                                 tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                             }
                         }
                         if(_findPrevMP(res,v.word,'NNG','동안').loc > tmpLoc){
+
                             if (JSON.stringify(prevMp)!='{}' && ((res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '분') || (res[prevMp.loc-1].pos == 'NNBC' && res[prevMp.loc-1].word == '시간'))){
+
                                 prevMp = _findPrevMP(res,v.word,'NNG','동안');
                                 tmpLoc = JSON.stringify(prevMp)=='{}'?0:prevMp.loc;
                             }
@@ -602,4 +613,71 @@ module.exports = (app) => {
             });
         });
     });
+
+    app.post('/api/mpAnalysisUser', jsonParser, (request, response) => {
+
+            var srcText = request.body.input;
+            var loginUserName = request.body.userName;
+            let res = [];
+            let user = '';
+
+            parse(srcText).then((result)=>{
+                // console.log('------start------')
+                for (let i in result){
+                    let word = result[i][0];
+                    let pos = result[i][1];
+                    if(word == 'EOS') continue;
+                    res.push({
+                        word : word,
+                        pos : pos
+                    });
+                    // console.log(word," : ",pos);
+                }
+
+                //UserName추출
+                res.map((v,i)=>{
+
+
+                    if(v.pos == 'JKS' || v.pos == 'JKG'){
+                        if(res[i-1].word != '선임' && res[i-1].word != '수석' && res[i-1].word != '책임' && res[i-1].word != '이사'){
+                            if(res[i-1].word.length < 3){
+                                if(res[i-1].pos == 'NP'){
+                                    userName = loginUserName ;  // 내 + 가,
+                                    console.log("mpAnalysisUser result userName : " + userName);
+                                }else{
+                                  userName = res[i-2].word + res[i-1].word ;  // 육민 + 형 + 이,
+                                  console.log("mpAnalysisUser result userName : " + userName);
+                                }
+                            }else{
+                               userName = res[i-1].word ;                  // 조기수 + 가, 조민호 + 가
+                               console.log("mpAnalysisUser result userName : " + userName);
+                            }
+                        }else{
+                            if(res[i-2].word.length < 3){
+                                userName = res[i-3].word + res[i-2].word ;  // 육민 + 형 + 선임 + 이,
+                                console.log("mpAnalysisUser result userName : " + userName);
+                            }else{
+                                userName = res[i-2].word ;                  // 조민호 + 선임 + 이, 조기수 + 수석 + 이
+                                console.log("mpAnalysisUser result userName : " + userName);
+                            }
+                        }
+                    }
+                })
+
+                Users.find({name:userName}, (e, userData)=>{
+                    var myRsvrUserId = userData[0].id;
+                    var myRsvrUserName = userData[0].name;
+
+                    let resp = {
+                        myRsvrUserId : myRsvrUserId, myRsvrUserName : myRsvrUserName
+                    }
+                    response.send(resp)
+                },(err)=>{
+                console.log('(mpAnalysisUser)Morphological Analysys Error : ',err);
+            });
+
+        });
+
+    });
+
 };
