@@ -22,8 +22,9 @@ const initialState = Map({
 export default handleActions({
     [SET_SETTINGS]:(state, action) => {
         const settings = action.payload;
+        let showFlag = settings.showFlag==undefined?true:settings.showFlag
         return state.set('settings', settings)
-                    .set('showFlag', true)
+                    .set('showFlag', showFlag)
     },
     [SET_SHOWFLAG]:(state, action) => state.set('showFlag', action.payload),
     [SET_USERNAME]:(state, action) => state.set('userName', action.payload),
