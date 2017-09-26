@@ -131,6 +131,24 @@ var Common = (function() {
         }
     }
 
+    function sortJsonArrayByRoom(objArray, prop, value) {
+        if (arguments.length < 3)
+            throw new Error("sortJsonArrayByProp requires 2 arguments");
+        let newArray = new Array();
+        let newCount = 1;
+        if (objArray && objArray.constructor === Array) {
+            objArray.forEach((v,i)=>{
+                if (v[prop].indexOf(value) > -1){
+                    newArray[0] = v;
+                }else{
+                    newArray[newCount] = v;
+                    newCount++;
+                }
+            })
+        }
+        return newArray;
+    }
+
     function _paddingZero(num) {
         if (parseInt(num) < 10) {
             return '0' + parseInt(num);
@@ -248,7 +266,7 @@ var Common = (function() {
         return tt;
     }
 
-    function ableRoomInfo(room, data, startTime, endTime, target) {
+    function ableRoomInfo(room, data, startTime, endTime, target, favorite) {
         // console.log('방정보',room)
         // console.log('가능회의실 판단------',data,'-----',startTime,'------',endTime,'-----',target)
         var roomInfo = JSON.parse(room);
@@ -261,6 +279,9 @@ var Common = (function() {
             });
         }
         Common.sortJsonArrayByProperty(roomInfo, 'MR_NM');
+        if (favorite != undefined){
+            roomInfo = Common.sortJsonArrayByRoom(roomInfo, 'MR_NM', favorite);
+        }
         JSON.parse(data).map((v, i) => {
             let tmp = Common.makeTimeTable(v.RSVR_FR_HH, v.RSVR_FR_MI, v.RSVR_TO_HH, v.RSVR_TO_MI);
 
@@ -285,7 +306,7 @@ var Common = (function() {
         return roomInfo;
     }
 
-    function getTimeInfoAuto(room, data, entities, input) {
+    function getTimeInfoAuto(room, data, entities, input, favorite) {
         var inputText = input.text
         // console.log("::::: room :::::",room)
         // console.log("::::: data :::::",data)
@@ -325,7 +346,7 @@ var Common = (function() {
                     if (thisTime > '1130')
                         thisTime = '1130';
                     while (thisTime != '1130') {
-                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room);
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room, favorite);
                         if (JSON.stringify(roomInfos) != '{}') {
                             result.rsvrTFH = thisTime.substr(0, 2);
                             result.rsvrTFM = thisTime.substr(2, 2);
@@ -350,7 +371,7 @@ var Common = (function() {
                     if (thisTime > '1700')
                         thisTime = '1700';
                     while (thisTime != '1700') {
-                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room);
+                        roomInfos = ableRoomInfo(room, data, thisTime, _calTime(thisTime, period), result.room, favorite);
                         if (JSON.stringify(roomInfos) != '{}') {
                             result.rsvrTFH = thisTime.substr(0, 2);
                             result.rsvrTFM = thisTime.substr(2, 2);
@@ -362,7 +383,7 @@ var Common = (function() {
                         }
                     }
                 } else {
-                    roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM, result.room);
+                    roomInfos = ableRoomInfo(room, data, result.rsvrTFH + result.rsvrTFM, result.rsvrTTH + result.rsvrTTM, result.room, favorite);
                 }
 
                 //  console.log("roomInfos : ",roomInfos)
@@ -556,6 +577,7 @@ var Common = (function() {
 
     return {
         sortJsonArrayByProperty: sortJsonArrayByProperty,
+        sortJsonArrayByRoom: sortJsonArrayByRoom,
         paddingZero: _paddingZero,
         makeTimeTable: makeTimeTable,
         getTimeInfoAuto: getTimeInfoAuto,
