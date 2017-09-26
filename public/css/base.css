@@ -70,7 +70,14 @@
 .tbl_sch .sect_ctg{overflow:hidden;width:100%;height:100%;}
 .tbl_sch.ctg{width:100%;}
 .tbl_sch.ctg .hd_ctg_scroll{padding:0;height:18px;font-size:0;line-height:1;border-bottom:none;background-color:#edeef3;}
-.sect_tml_cell{width:auto;margin-left : 20px;margin-top : 10px;/*width:calc(100% - 150px);*/}
+.sect_tml_cell{
+  position: relative;
+  width: 880px;
+  left: 42%;
+  margin-left: -230px;
+  top: -30px;
+  z-index: 999;
+}
 .tbl_sch .sect_tml{overflow:hidden;overflow-x:scroll;width:777px;height:100%;top:450px;}/*% width값은 상대적이라 반응하지 않음.*/
 .sect_sch.ctgNmb04 .tbl_sch .sect_tml{width:527px;}
 .tbl_sch .sect_tml.exp{width:1028px;}

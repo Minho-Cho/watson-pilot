@@ -91,7 +91,7 @@ export default class ConferenceRoomRsvrInfo extends React.Component {
         return (
             <div className="sect_schLst tbl_sch sect_tml_cell">
 			{ this.props.showflag && (
-				<div>
+				<div style={{marginLeft:'-250px'}}>
 				<span className="dateTitle">&lt;&nbsp;{rsvrDay}&nbsp;&gt;</span>
 				<table className="tbl_sch tml" >
 					<colgroup>

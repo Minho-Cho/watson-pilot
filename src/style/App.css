@@ -91,21 +91,24 @@ img {
 }
 
 .headerb {
-    padding: 20.5em 0 2.2em;
-    position: fixed;
+    padding: 17em 0 2.2em;
+    position: relative;
     width: 70%;
-    margin-left: 20em;
-    top: 0;
+    left: 42%;
+    margin-left: -300px;
     z-index: 999;
+    padding-bottom: 0px;
 }
 
 .headert {
-    padding: 10.5em 0 2.2em;
-    position: fixed;
+    padding: calc(10% - 2.2em) 0 2.2em;
+    position: relative;
     width: 70%;
-    margin-left: 20em;
+    left: 42%;
+    margin-left: -300px;
     top: 0;
     z-index: 999;
+    padding-bottom: 0px;
 }
 
 .wrap {
@@ -113,13 +116,28 @@ img {
     margin: 0 auto;
 }
 
+.info {
+    padding: 17em 0 2.2em;
+    position: relative;
+    width: 70%;
+    left: 43%;
+    margin-left: -220px;
+    z-index: 999;
+    color: #7B7B7B;
+    font-weight: bold;
+    text-align: center;
+    padding-top: 0px;
+    font-size: 1em;
+}
+
 .logo {
+  margin-left: 2.7em;
+  bottom: 650px;
   color: #363636;
-  font-size: 1.875em;
+  font-size: 2.5em;
   font-weight: bold;
   text-align: center;
-  width: calc(100% - 200px);
-  position: relative;
+  width: 500px;
 }
 
 .logo img {
@@ -218,8 +236,7 @@ a.boxclose {
 }
 
 .top_searchbar {
-    float: left;
-    width: calc(100% - 300px);
+    width: 600px;
     position: relative;
     margin-left: 2em;
 }
@@ -253,6 +270,7 @@ a.boxclose {
 }
 
 .top_searchbar a {
+    float: right;
     position: absolute;
     background: url("/images/search-icon.png") no-repeat 0px 0px;
     height: 26px;
@@ -268,7 +286,7 @@ a.boxclose {
 .userinfo {
     float: right;
     padding-right: 50px;
-    margin-top: 0.3em;
+    margin-top: 0.5em;
 }
 
 .user ul li {
@@ -313,6 +331,25 @@ a.boxclose {
     position: absolute;
     top: -30px;
 }
+
+.content .containerAnswer {
+    padding: 0.65em 0em 3em 3em;
+    outline: none;
+    -webkit-border-radius: 0.3em;
+    -webkit-appearance: none;
+    font-family: 'Malgun Gothic', sans-serif;
+    font-size: 15px;
+    color: #777;
+    position: relative;
+    width: 70%;
+    left: 43%;
+    margin-left: -280px;
+    top: 0;
+    z-index: 999;
+    width: 900px;
+}
+
+
 
 .dateTitle {
     font-family: Arial;
